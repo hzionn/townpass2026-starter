@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。目前沒有程式碼，語言和套件等題目公布後再決定；決定後請更新這份文件和 `memory/decisions.md`。
+這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。目前沒有程式碼，語言和套件等題目公布後再決定；決定後請更新這份文件和 `.claude/rules/decisions.md`。
 
 ## 隊伍背景
 
@@ -25,16 +25,16 @@
 
 - `main` 不能直接 push：開 branch、發 PR，也不要 force push。
 - 比賽成果最後必須公開，所以不要 commit 金鑰、密碼或個資。
-- 這個 repo 是全隊共用的，不要寫入個人電腦的路徑或環境設定。
-- 隊伍有新決定時更新 `memory/decisions.md`，讓全隊的 agent 都看得到。
+- 這個 repo 是全隊共用的，不要寫入個人電腦的路徑或環境設定；個人設定放 `~/.claude/CLAUDE.md`。
+- 隊伍有新決定時更新 `.claude/rules/decisions.md`，讓全隊的 agent 都看得到。
 
-## Memory
+## 共用資料
 
-`memory/` 是全隊共用的 agent memory，內容不會自動載入，遇到相關問題時先讀：
+`.claude/rules/` 的檔案會在每次對話開始時自動載入，全隊共用：
 
-- [memory/hackathon.md](memory/hackathon.md)：主題方向、時程、完整規則、評分、繳交項目、攜帶清單
-- [memory/townpass-integration.md](memory/townpass-integration.md)：作品和城市通 App 的關係、掛進 App 的步驟、雙向溝通、部署、往屆範例
-- [memory/decisions.md](memory/decisions.md)：目前的題目、作品、技術選型、分工。開始任何開發工作前先讀
-- [memory/links.md](memory/links.md)：官方文件、開放資料平台、官方 GitHub 的網址
+- `hackathon.md`：主題方向、時程、完整規則、評分、繳交項目、攜帶清單
+- `townpass-integration.md`：作品和城市通 App 的關係、掛進 App 的步驟、雙向溝通、部署、往屆範例
+- `decisions.md`：目前的題目、作品、技術選型、分工
+- `links.md`：官方文件、開放資料平台、官方 GitHub 的網址
 
-memory 的內容整理自官網和工作坊手冊（2026-11-07），主辦單位保留修改權。規則有疑問時回官網或問現場 Coding 診療室，不要用猜的。
+這些內容整理自官網和工作坊手冊（2026-11-07），主辦單位保留修改權。規則有疑問時回官網或問現場 Coding 診療室，不要用猜的。
