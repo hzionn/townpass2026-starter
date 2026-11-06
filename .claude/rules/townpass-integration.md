@@ -28,6 +28,8 @@ fvm flutter run
 - iOS 需要 Mac 和 Xcode。
 - 不用上架也能裝到手機：Android 可以安裝 `flutter build apk` 產生的 APK，或用 USB 接電腦跑 `flutter run`。
 
+**發 PR 前先確認目標：** 隊伍的 fork 上游是官方 repo，GitHub 網頁和 `gh pr create` 可能預設把 PR 發到 `taipei-doit/TownPass`。目標要選 `hzionn/TownPass`，或先在 clone 裡跑 `gh repo set-default hzionn/TownPass`。
+
 ## 把服務掛進 App
 
 1. SVG 放進 `assets/svg/`，檔名用 snake_case，再跑一次 build_runner。程式裡用 `Assets.svg.iconXxx.svg()` 取用；專案已有上百個圖示可以直接用。

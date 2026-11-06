@@ -8,11 +8,13 @@
 
 | 路徑 | 內容 |
 |---|---|
-| `CLAUDE.md` | 給 AI agent 的指示：比賽硬規則、協作方式、memory 索引 |
-| `memory/hackathon.md` | 主題方向、時程、規則、評分、繳交項目、攜帶清單 |
-| `memory/townpass-integration.md` | 作品怎麼掛進城市通 App、網頁怎麼呼叫 App 功能、怎麼部署 |
-| `memory/decisions.md` | 隊伍的決定：題目、作品、技術、分工（比賽中持續更新） |
-| `memory/links.md` | 官方文件、開放資料平台等網址 |
+| `CLAUDE.md` | 給 AI agent 的指示：比賽硬規則、協作方式、共用資料索引 |
+| `.claude/rules/hackathon.md` | 主題方向、時程、規則、評分、繳交項目、攜帶清單 |
+| `.claude/rules/townpass-integration.md` | 作品怎麼掛進城市通 App、網頁怎麼呼叫 App 功能、怎麼部署 |
+| `.claude/rules/decisions.md` | 隊伍的決定：題目、作品、技術、分工（比賽中持續更新） |
+| `.claude/rules/links.md` | 官方文件、開放資料平台等網址 |
+
+`.claude/rules/` 是 Claude Code 的官方位置，每次對話開始都會自動載入。這些檔案也是一般的 Markdown，隊友可以直接打開來看。
 
 ## 我們要做的東西
 
@@ -28,7 +30,7 @@
    git clone https://github.com/hzionn/townpass2026-starter.git
    ```
 
-2. 在 repo 根目錄開啟 Claude Code，它會自動讀取 `CLAUDE.md`。用其他 AI 工具的話，先請它讀 `CLAUDE.md`。
+2. 在 repo 根目錄開啟 Claude Code，它會自動載入 `CLAUDE.md` 和 `.claude/rules/`。用其他 AI 工具的話，先請它讀這些檔案。
 3. 可以先這樣問它：
 
    - 「用白話解釋我們要做什麼，我應該先學什麼？」
@@ -53,10 +55,10 @@ gh pr create --fill
 
 ## 繳交前要補上
 
-以下是比賽要求或手冊建議的項目，這裡都還沒有，完賽前要補齊（細節見 `memory/hackathon.md`）：
+以下是比賽要求或手冊建議的項目，這裡都還沒有，完賽前要補齊（細節見 `.claude/rules/hackathon.md`）：
 
 - `LICENSE`：AGPL-3.0，加上主辦單位指定的聲明
 - 讓別人能照著建置的執行說明（可以直接寫在這份 README）
-- 資料來源清單和第三方套件清單（可以從 `memory/decisions.md` 整理）
+- 資料來源清單和第三方套件清單（可以從 `.claude/rules/decisions.md` 整理）
 - 作品有用裝置端 AI 時的模型揭露
 - 把 repo 設為公開，並保持公開至少一年
