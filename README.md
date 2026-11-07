@@ -26,6 +26,10 @@
 
 城市通 App 是用 Flutter 寫的，裡面有一個內嵌瀏覽器（WebView）會載入我們的網址。網頁可以用任何語言或框架寫，需要定位、掃碼、通知時，再透過 App 提供的介面呼叫。所以全隊不需要先學會 Flutter，App 通常只要改幾個檔。
 
+## 在模擬器中執行
+
+請參考 [`RUN_ON_EMULATOR.md`](RUN_ON_EMULATOR.md)：託你辦 iOS／Android 模擬器執行指南。
+
 ## 開始使用
 
 1. Clone 這個 repo：
