@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。目前沒有程式碼，語言和套件等題目公布後再決定；決定後請更新這份文件和 `.claude/rules/decisions.md`。
+這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。作品「託你辦」的程式都在 `tuoniban/`：前端 Vue 3 + Vite + TypeScript（`web/`），後端 Node.js 22.13 以上 + Express 5 + TypeScript（`server/`），共用型別在 `shared/`，資料存 SQLite，部署到 GCP VM 並用 Caddy 提供 HTTPS（`deploy/`）。怎麼跑、怎麼測、怎麼部署看 `tuoniban/README.md`，實作取捨看 `tuoniban/docs/IMPLEMENTATION.md`。技術或作品有變動時，更新這份文件和 `.claude/rules/decisions.md`。
 
 ## 隊伍背景
 
