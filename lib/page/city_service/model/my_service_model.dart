@@ -29,6 +29,7 @@ enum MyServiceItemId {
   library,
   locationSearch,
   zoo,
+  tuoNiBan,
   ;
 }
 
@@ -182,6 +183,14 @@ extension MyServiceIdExt on MyServiceItemId {
           icon: Assets.svg.iconZoo24.svg(),
           category: MyServiceCategory.explore,
           destinationUrl: '',
+        ),
+      MyServiceItemId.tuoNiBan => MyServiceItem(
+          title: '託你辦',
+          description: '讓信任的人幫忙填寫申辦需求',
+          icon: Assets.svg.iconProtect.svg(),
+          category: MyServiceCategory.cityService,
+          destinationUrl: 'http://localhost:5173/',
+          forceWebViewTitle: '託你辦',
         ),
     };
   }
