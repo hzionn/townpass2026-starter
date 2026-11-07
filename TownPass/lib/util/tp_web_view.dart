@@ -12,10 +12,12 @@ import 'package:town_pass/util/web_message_handler/tp_web_message_listener.dart'
 
 class WebViewArgument {
   final String? url;
+  final String? assetPath;
   final String? forceTitle;
 
   const WebViewArgument({
     this.url,
+    this.assetPath,
     this.forceTitle,
   });
 }
@@ -28,15 +30,20 @@ class WebViewArgument {
 /// ```
 class TPWebView extends StatelessWidget {
   final TPAppBarController? titleController;
+  final WebViewArgument? initialArgument;
 
   TPWebView({
     super.key,
     this.titleController,
+    this.initialArgument,
   });
 
-  String get url => (Get.arguments as WebViewArgument?)?.url ?? '';
+  WebViewArgument? get argument =>
+      initialArgument ?? (Get.arguments as WebViewArgument?);
 
-  String? get forceTitle => (Get.arguments as WebViewArgument?)?.forceTitle;
+  String get url => argument?.url ?? '';
+
+  String? get forceTitle => argument?.forceTitle;
 
   final TPAppBarController _defaultTitleController = TPAppBarController();
 
@@ -77,15 +84,21 @@ class TPWebView extends StatelessWidget {
         controller: appBarController,
       ),
       body: TPInAppWebView(
-        onWebViewCreated: (controller) {
+        initialSettings: InAppWebViewSettings(domStorageEnabled: true),
+        onWebViewCreated: (controller) async {
           webViewController.value = controller;
           try {
-            controller.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+            final assetPath = argument?.assetPath;
+            if (assetPath != null) {
+              await controller.loadFile(assetFilePath: assetPath);
+            } else {
+              await controller.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+            }
           } catch (_) {
-            controller.loadData(data: _failedToLoadUrlData(url: url));
+            await controller.loadData(data: _failedToLoadUrlData(url: url));
           }
         },
-        onUpdateVisitedHistory: (_, __, ___) async {
+        onUpdateVisitedHistory: (_, _, _) async {
           canGoBack.value = await webViewController.value?.canGoBack() ?? false;
         },
         onTitleChanged: (_, title) {

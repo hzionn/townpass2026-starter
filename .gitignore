@@ -1,0 +1,8 @@
+.DS_Store
+**/node_modules/
+carepass/dist/
+carepass/.env*
+!carepass/.env.example
+carepass/test-results/
+carepass/playwright-report/
+*.log

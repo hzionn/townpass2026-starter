@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。目前沒有程式碼，語言和套件等題目公布後再決定；決定後請更新這份文件和 `.claude/rules/decisions.md`。
+這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。`TownPass/` 為 Flutter App；`carepass/` 為 React／TypeScript 照護通微服務，功能與執行方式見 `carepass/README.md`，規格與流程見 `docs/`。前端修改後執行 `npm run build` 更新 App 內建網頁；新決定同步更新 `.claude/rules/decisions.md`。
 
 ## 隊伍背景
 

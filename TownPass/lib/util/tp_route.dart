@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:town_pass/page/carepass/carepass_view.dart';
 import 'package:town_pass/page/account/account_view.dart';
 import 'package:town_pass/page/account/account_view_controller.dart';
 import 'package:town_pass/page/activity_detail/activity_detail_view.dart';
@@ -59,8 +60,13 @@ abstract class TPRoute {
   static const String subscription = '/subscription';
   static const String suspendAccount = '/suspend_account';
   static const String webView = '/web_view';
+  static const String carePass = '/carepass';
 
   static final List<GetPage> page = [
+    GetPage(
+      name: carePass,
+      page: () => const CarePassView(),
+    ),
     GetPage(
       name: main,
       page: () => const MainView(),
@@ -195,7 +201,7 @@ abstract class TPRoute {
     return switch (Uri.tryParse(uri)) {
       null => Future.value(null),
       Uri uri => switch (uri.scheme) {
-          'local' => Get.toNamed(uri.host),
+          'local' => Get.toNamed('/${uri.host}'),
           _ => Get.toNamed(
               TPRoute.webView,
               arguments: WebViewArgument(

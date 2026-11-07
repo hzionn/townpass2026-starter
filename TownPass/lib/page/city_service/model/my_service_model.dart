@@ -29,12 +29,21 @@ enum MyServiceItemId {
   library,
   locationSearch,
   zoo,
+  carePass,
   ;
 }
 
 extension MyServiceIdExt on MyServiceItemId {
   MyServiceItem get item {
     return switch (this) {
+      MyServiceItemId.carePass => MyServiceItem(
+          title: '照護通',
+          description: '整理喘息需求、照顧資源與下一步行動',
+          icon: const Icon(Icons.volunteer_activism_outlined, color: Color(0xFF356C77)),
+          category: MyServiceCategory.healthCare,
+          destinationUrl: 'local://carepass',
+          forceWebViewTitle: '照護通 CarePass',
+        ),
       MyServiceItemId.dedicatedLine => MyServiceItem(
           title: '1999',
           description: '播打網路語音通話',

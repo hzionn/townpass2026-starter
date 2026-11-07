@@ -5,6 +5,15 @@ abstract final class TrendingServiceModel {
   static List<TrendingService> get serviceList {
     return [
       TrendingService(
+        title: '照護通',
+        icon: const Icon(
+          Icons.volunteer_activism_outlined,
+          color: Color(0xFF356C77),
+        ),
+        url: 'local://carepass',
+        forceWebViewTitle: '照護通 CarePass',
+      ),
+      TrendingService(
         title: '找地點',
         icon: Assets.svg.iconLocationSearch.svg(),
         url: 'https://taipei-pass-service.vercel.app/surrounding-service/',

@@ -1,0 +1,12 @@
+{
+  "name": "臺北市長照喘息服務特約單位－居家式",
+  "publisher": "臺北市政府衛生局",
+  "datasetUrl": "https://data.taipei/dataset/detail?id=959c34b2-9698-4d99-8987-d389efe18c04",
+  "resourceId": "cf41693d-b35e-4744-8c37-d6505c54c13a",
+  "resourceUrl": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=cf41693d-b35e-4744-8c37-d6505c54c13a",
+  "sourceUpdatedAt": "2026-09-18T15:17:30+08:00",
+  "fetchedAt": "2026-11-07T14:19:00+08:00",
+  "encoding": "Big5",
+  "licenseUrl": "https://data.gov.tw/license",
+  "scopeNote": "全區與無法完整解析的服務區別保留原始標示，另列待確認，不當作已確認涵蓋指定行政區。"
+}

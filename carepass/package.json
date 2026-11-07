@@ -1,0 +1,28 @@
+{
+  "name": "carepass",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "check": "tsc --noEmit",
+    "test": "node --test tests/*.test.ts",
+    "build": "npm run check && vite build && node scripts/bundle-flutter.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "data:import": "node scripts/import-data.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "csv-parse": "7.0.3",
+    "typescript": "7.0.2",
+    "vite": "8.3.6",
+    "vite-plugin-singlefile": "2.3.4"
+  }
+}

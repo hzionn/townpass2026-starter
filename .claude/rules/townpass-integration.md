@@ -1,5 +1,7 @@
 # 作品和城市通 App 的關係
 
+本 repository 已將 App 匯入 `TownPass/`，照護通網頁位於 `carepass/`，執行方式優先參考 `carepass/README.md`。目前支援內建單一 HTML，亦可指定實際 HTTPS 網址；下方 clone 步驟保留作為上游來源參考。
+
 參賽作品通常是一個微服務網頁，視需求搭配後端，App 本身不一定要改。官方範例用 Vue 3，但語言和框架都不限，React 或純 HTML 也可以，後端同樣不限語言。
 
 ```text
