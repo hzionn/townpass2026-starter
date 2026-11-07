@@ -12,28 +12,5 @@ tuoniban/test-results/
 tuoniban/playwright-report/
 tuoniban/coverage/
 
-# Flutter / Dart 產生檔
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-/build/
-*.g.dart
-*.gen.dart
-
-# Android 本機產生檔
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-
-# iOS 本機產生檔
-**/ios/Pods/
-**/ios/.symlinks/
-**/ios/**/xcuserdata/
-**/ios/Flutter/.last_build_id
-**/ios/Flutter/ephemeral/
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/Runner/GeneratedPluginRegistrant.*
-
 # 原始規格資料夾（只留在本機）
 託你辦_授權協作申辦與預約平台/
