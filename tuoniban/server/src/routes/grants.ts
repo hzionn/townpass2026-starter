@@ -11,6 +11,7 @@ import {
   type RevokeResponse,
 } from '../../../shared/contract.js';
 import { emptyFormData } from '../../../shared/form.js';
+import { loadActivity } from '../activity.js';
 import { auditedTx } from '../audit.js';
 import { addMinutes } from '../clock.js';
 import { ACCESS_MINUTES, CLAIM_MINUTES, GRANT_SCOPES } from '../constants.js';
@@ -39,6 +40,7 @@ interface LatestGrantRow {
   state: GrantState;
   claim_expires_at: string;
   access_expires_at: string;
+  created_at: string;
   case_id: string | null;
   receipt_no: string | null;
 }
@@ -136,7 +138,7 @@ export function registerGrantRoutes(app: Express, deps: AppDeps): void {
     const session = await requireSession(db, req, secret, now);
     requirePersona(session, 'applicant');
     const row = await db.get<LatestGrantRow>(
-      `SELECT g.id, g.state, g.claim_expires_at, g.access_expires_at, c.id AS case_id, s.receipt_no
+      `SELECT g.id, g.state, g.claim_expires_at, g.access_expires_at, g.created_at, c.id AS case_id, s.receipt_no
          FROM assistance_grants g
          LEFT JOIN cases c ON c.grant_id = g.id
          LEFT JOIN submissions s ON s.case_id = c.id
@@ -153,6 +155,7 @@ export function registerGrantRoutes(app: Express, deps: AppDeps): void {
           accessExpiresAt: row.access_expires_at,
           caseId: row.case_id,
           receiptNo: row.receipt_no,
+          activity: await loadActivity(db, row.id, row.created_at),
           serverNow: now.toISOString(),
         }
       : null;

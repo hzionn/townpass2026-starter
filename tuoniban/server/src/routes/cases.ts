@@ -46,9 +46,7 @@ export function registerCaseRoutes(app: Express, deps: AppDeps): void {
       const now = clock.now();
       const session = await requireSession(tx, req, secret, now);
       audit.actorId = actorIdOf(session);
-      const row = await requireHelperCase(tx, session, req.params.id, now);
-      audit.caseId = row.case_id;
-      audit.grantId = row.grant_id;
+      const row = await requireHelperCase(tx, session, req.params.id, now, audit);
       requireDraft(row);
       const body = parseBody(req, res, SaveDraftBody);
       requireRevision(row, body.expectedRevision);

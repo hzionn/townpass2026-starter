@@ -112,9 +112,7 @@ export function registerAttachmentRoutes(app: Express, deps: AppDeps): void {
         const now = clock.now();
         const session = await requireSession(tx, req, secret, now);
         audit.actorId = actorIdOf(session);
-        const row = await requireHelperCase(tx, session, req.params.id, now);
-        audit.caseId = row.case_id;
-        audit.grantId = row.grant_id;
+        const row = await requireHelperCase(tx, session, req.params.id, now, audit);
         requireDraft(row);
         if (fieldsComplete && fields.requirementId !== REQUIREMENT_ID) {
           throw attachmentError('VALIDATION_FAILED', '附件欄位不正確，請重新整理後再試。');
@@ -155,9 +153,7 @@ export function registerAttachmentRoutes(app: Express, deps: AppDeps): void {
       const now = clock.now();
       const session = await requireSession(tx, req, secret, now);
       audit.actorId = actorIdOf(session);
-      const row = await requireHelperCase(tx, session, req.params.id, now);
-      audit.caseId = row.case_id;
-      audit.grantId = row.grant_id;
+      const row = await requireHelperCase(tx, session, req.params.id, now, audit);
       requireDraft(row);
       const body = parseBody(req, res, DeleteAttachmentBody);
       const attachmentId = req.params.attachmentId;

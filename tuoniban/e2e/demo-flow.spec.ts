@@ -13,7 +13,8 @@ const SHOTS = process.env.E2E_SCREENSHOT_DIR;
 // There is a single demo applicant, so every test starts from freshly seeded data, as a demo does.
 test.beforeEach(() => {
   const dataDir = process.env.TUONIBAN_E2E_DIR!;
-  execFileSync('npx', ['tsx', 'server/src/reset-cli.ts'], {
+  // The running node with tsx's loader, not `npx`: Windows cannot spawn `npx` without a shell.
+  execFileSync(process.execPath, ['--import', 'tsx', 'server/src/reset-cli.ts'], {
     env: { ...process.env, DATABASE_PATH: join(dataDir, 'e2e.db'), PRIVATE_UPLOAD_DIR: join(dataDir, 'uploads') },
     stdio: 'ignore',
   });
@@ -157,6 +158,12 @@ test('stopping assistance blocks the helper on their next action (AT12)', async 
   await helper.getByRole('button', { name: '儲存草稿' }).click();
   await expect(helper.getByRole('heading', { level: 1, name: '這次協助已停止' })).toBeVisible();
   await shot(helper, 's07-revoked');
+
+  // The applicant's activity log shows the stop and the refused save, without a reload (polling).
+  const log = applicant.getByRole('region', { name: '協助紀錄' });
+  await expect(log).toContainText('你停止了協助');
+  await expect(log).toContainText('系統已擋下', { timeout: 15_000 });
+  await shot(applicant, 's02-activity-log');
 });
 
 test('links from elsewhere are refused and never followed (AT05)', async ({ browser }) => {

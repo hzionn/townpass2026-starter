@@ -57,9 +57,7 @@ export function registerSubmitRoutes(app: Express, deps: AppDeps): void {
       const now = clock.now();
       const session = await requireSession(tx, req, config.sessionSecret, now);
       audit.actorId = actorIdOf(session);
-      const row = await requireHelperCase(tx, session, req.params.id, now);
-      audit.caseId = row.case_id;
-      audit.grantId = row.grant_id;
+      const row = await requireHelperCase(tx, session, req.params.id, now, audit);
       const body = parseBody(req, res, SubmitBody);
       const idempotencyKey = body.idempotencyKey.toLowerCase();
       const fingerprint = requestFingerprint(row.case_id, body.expectedRevision);

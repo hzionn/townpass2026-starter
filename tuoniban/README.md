@@ -17,7 +17,7 @@
 | 畫面 | 網址 | 誰用 | 做什麼 |
 |---|---|---|---|
 | S01 共用首頁 | `/` | 所有人 | 選「我要請人幫忙」或「我要幫忙」；有進行中的協助時多一個「繼續上次協助」 |
-| S02 本人產碼與狀態 | `/my-assistance` | 申請者 | 按「同意並產生協助碼」，顯示 QR Code、剩餘時間、分享或複製連結；畫面自動更新成待領取、有人正在協助、代辦者已模擬送出；隨時可以「停止協助」 |
+| S02 本人產碼與狀態 | `/my-assistance` | 申請者 | 按「同意並產生協助碼」，顯示 QR Code、剩餘時間、分享或複製連結；畫面自動更新成待領取、有人正在協助、代辦者已模擬送出；隨時可以「停止協助」；下方「協助紀錄」列出誰在什麼時候做了什麼，停止後代辦者再操作會顯示「系統已擋下」 |
 | S03 掃碼／貼連結 | `/scan`，連結是 `/assist#token=…` | 代辦者 | 「掃描協助碼」（在城市通裡用 App 掃碼，一般瀏覽器用相機），或貼上協助連結 |
 | S04 範例表單與附件 | `/cases/:id/edit` | 代辦者 | 只看到「身分資料已備妥」，看不到原值；填偏好地點、日期、時段、是否陪同、代辦稱呼和電話；上傳一份合成練習附件；「儲存草稿」、「下一步：確認內容」 |
 | S05 確認摘要 | `/cases/:id/review` | 代辦者 | 檢查內容，按「確認並模擬送出」 |
@@ -114,6 +114,7 @@ npm run build && npx playwright test      # 端對端測試，也可以用 npm r
 | AT10 重試 | `server/tests/suites/submit.ts` |
 | AT11 隱私與越權 | `server/tests/suites/privacy.ts`、`e2e/demo-flow.spec.ts` |
 | AT12 停止與到期 | `server/tests/suites/revoke-expiry.ts`、`e2e/demo-flow.spec.ts` |
+| 協助紀錄（info.md E05，規格 v1.3 之外） | `server/tests/suites/activity.ts`、`web/src/views/MyAssistance.test.ts`、`e2e/demo-flow.spec.ts` |
 | AT13 衝突與錯誤 | `server/tests/suites/draft.ts`、`session.ts`、`revoke-expiry.ts` |
 | AT14 可及性 | `e2e/demo-flow.spec.ts`（axe 檢查、320px）；200% 縮放、螢幕閱讀器、相機被拒要手動測 |
 

@@ -47,6 +47,7 @@ export function grantSuite(h: Harness): void {
         accessExpiresAt: grant.accessExpiresAt,
         caseId: null,
         receiptNo: null,
+        activity: [{ kind: 'code_issued', at: START, count: 1 }],
         serverNow: START,
       });
     });

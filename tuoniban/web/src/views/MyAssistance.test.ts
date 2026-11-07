@@ -35,6 +35,7 @@ function grant(state: GrantState, overrides: Partial<MyAssistanceResponse> = {})
     accessExpiresAt: '2026-11-07T07:00:00.000Z',
     caseId: null,
     receiptNo: null,
+    activity: [],
     serverNow: '2026-11-07T06:00:18.000Z',
     ...overrides,
   };
@@ -181,7 +182,14 @@ describe('S02', () => {
   });
 
   it('stops only after confirming, with the spec wording', async () => {
-    mocked.getMyAssistance.mockResolvedValue(grant('active', { caseId: 'case-1' }));
+    mocked.getMyAssistance
+      .mockResolvedValueOnce(grant('active', { caseId: 'case-1' }))
+      .mockResolvedValue(
+        grant('revoked', {
+          caseId: 'case-1',
+          activity: [{ kind: 'stopped', at: '2026-11-07T06:01:00.000Z', count: 1 }],
+        }),
+      );
     mocked.revokeGrant.mockResolvedValueOnce({ grantId: 'grant-1', state: 'revoked', serverNow: '2026-11-07T06:01:00Z' });
     const wrapper = await mountPage();
 
@@ -197,6 +205,45 @@ describe('S02', () => {
     await flushPromises();
     expect(mocked.revokeGrant).toHaveBeenCalledWith('grant-1');
     expect(wrapper.text()).toContain('這次協助已停止');
+    // The log is re-read at once, so the stop shows without waiting for the next poll.
+    expect(wrapper.find('.activity').text()).toContain('14:01你停止了協助');
+    wrapper.unmount();
+  });
+
+  it('lists the activity log newest first, with times in Taipei and blocked attempts marked', async () => {
+    mocked.getMyAssistance.mockResolvedValue(
+      grant('revoked', {
+        caseId: 'case-1',
+        activity: [
+          { kind: 'blocked', at: '2026-11-07T06:09:00.000Z', count: 2 },
+          { kind: 'stopped', at: '2026-11-07T06:08:00.000Z', count: 1 },
+          { kind: 'draft_saved', at: '2026-11-07T06:05:00.000Z', count: 3 },
+          { kind: 'claimed', at: '2026-11-07T06:02:00.000Z', count: 1 },
+          { kind: 'code_issued', at: '2026-11-07T06:00:00.000Z', count: 1 },
+        ],
+      }),
+    );
+    const wrapper = await mountPage();
+
+    const section = wrapper.find('section.activity');
+    expect(section.find('h2').text()).toBe('協助紀錄');
+    const items = section.findAll('li').map((item) => item.text());
+    expect(items).toEqual([
+      '14:09⚠ 協助結束後代辦者仍嘗試操作，系統已擋下（2 次）',
+      '14:08你停止了協助',
+      '14:05代辦者儲存草稿（3 次）',
+      '14:02代辦者領取協助碼，開始協助',
+      '14:00你產生了協助碼',
+    ]);
+    expect(section.find('li').classes()).toContain('activity__item--warning');
+    expect(section.find('time').attributes('datetime')).toBe('2026-11-07T06:09:00.000Z');
+    wrapper.unmount();
+  });
+
+  it('has no activity log before any code exists', async () => {
+    mocked.getMyAssistance.mockResolvedValue(null);
+    const wrapper = await mountPage();
+    expect(wrapper.find('section.activity').exists()).toBe(false);
     wrapper.unmount();
   });
 });

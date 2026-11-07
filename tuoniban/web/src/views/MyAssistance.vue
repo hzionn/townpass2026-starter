@@ -10,6 +10,7 @@ import type { GrantCreatedResponse, MyAssistanceResponse, Receipt } from '../../
 import { ApiError, api, isAccessLost } from '../api/client';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import FullPageState from '../components/FullPageState.vue';
+import { activityLabel, isWarningActivity } from '../lib/activity';
 import { refocusIfLost } from '../lib/focus';
 import { kindFromError, type S07Kind } from '../lib/pageState';
 import { startPolling } from '../lib/poller';
@@ -209,6 +210,7 @@ function adoptNewCode(created: GrantCreatedResponse): void {
     accessExpiresAt: created.accessExpiresAt,
     caseId: null,
     receiptNo: null,
+    activity: [{ kind: 'code_issued', at: created.serverNow, count: 1 }],
     serverNow: created.serverNow,
   });
 }
@@ -243,6 +245,8 @@ async function stopAssistance(): Promise<void> {
     const result = await api.revokeGrant(current.grantId);
     serverClock.sync(result.serverNow);
     applyGrant({ ...current, state: result.state, serverNow: result.serverNow });
+    // The activity log gains a "stopped" line; fetch it now rather than at the next poll.
+    await refresh();
   });
 }
 
@@ -393,6 +397,23 @@ function selectAll(event: FocusEvent): void {
           </button>
         </div>
       </template>
+
+      <!-- What happened during this assistance (info.md E05). Polled with the state, never announced. -->
+      <section v-if="grant && grant.activity.length > 0" class="activity" aria-labelledby="activity-title">
+        <h2 id="activity-title" class="section-title">協助紀錄</h2>
+        <p class="muted">只記錄誰在什麼時候做了什麼，不包含填寫內容或附件。</p>
+        <ol class="activity__list">
+          <li
+            v-for="(event, index) in grant.activity"
+            :key="`${event.kind}-${event.at}-${index}`"
+            class="activity__item"
+            :class="{ 'activity__item--warning': isWarningActivity(event) }"
+          >
+            <time class="activity__time" :datetime="event.at">{{ formatTaipeiTime(event.at) }}</time>
+            <span><span v-if="isWarningActivity(event)" aria-hidden="true">⚠ </span>{{ activityLabel(event) }}</span>
+          </li>
+        </ol>
+      </section>
 
       <p v-if="actionError" class="notice notice--error"><span aria-hidden="true">⚠ </span>{{ actionError }}</p>
       <p v-if="connectionLost" class="muted connection-note">

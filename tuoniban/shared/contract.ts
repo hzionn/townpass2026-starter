@@ -187,6 +187,31 @@ export interface GrantCreatedResponse {
   serverNow: string;
 }
 
+/**
+ * What happened during the applicant's latest grant, in words the applicant can check
+ * (info.md E05). Built from audit events, so it never carries ids, form values or files.
+ * `blocked` is a helper action refused because the applicant stopped it or it expired.
+ */
+export const ACTIVITY_KINDS = [
+  'code_issued',
+  'claimed',
+  'draft_saved',
+  'attachment_uploaded',
+  'attachment_removed',
+  'submitted',
+  'stopped',
+  'blocked',
+] as const;
+export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
+
+export interface ActivityEvent {
+  kind: ActivityKind;
+  /** The latest time in the run when `count` > 1. */
+  at: string;
+  /** Repeats in a row are folded into one entry, e.g. five draft saves. */
+  count: number;
+}
+
 /** GET /api/my-assistance returns this, or `data: null` when no grant exists. */
 export interface MyAssistanceResponse {
   grantId: string;
@@ -195,6 +220,8 @@ export interface MyAssistanceResponse {
   accessExpiresAt: string;
   caseId: string | null;
   receiptNo: string | null;
+  /** Newest first. */
+  activity: ActivityEvent[];
   serverNow: string;
 }
 

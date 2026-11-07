@@ -1,5 +1,6 @@
 import { describe } from 'vitest';
 import { ADAPTERS, useHarness } from './support/harness.js';
+import { activitySuite } from './suites/activity.js';
 import { attachmentSuite } from './suites/attachments.js';
 import { concurrencySuite } from './suites/concurrency.js';
 import { draftSuite } from './suites/draft.js';
@@ -27,4 +28,5 @@ describe.each(ADAPTERS)('API on %s', (adapter) => {
   revokeExpirySuite(h);
   concurrencySuite(h);
   httpSuite(h);
+  activitySuite(h);
 });

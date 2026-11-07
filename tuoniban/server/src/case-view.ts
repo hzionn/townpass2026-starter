@@ -9,6 +9,7 @@ import {
   type HelperCaseResponse,
   type Receipt,
 } from '../../shared/contract.js';
+import type { AuditContext } from './audit.js';
 import { ATTACHMENT_DISPLAY_NAME, RECEIPT_MESSAGE, SERVICE_NAME } from './constants.js';
 import { apiError } from './errors.js';
 import { assertHelperGrantOpen } from './grant-rules.js';
@@ -81,12 +82,26 @@ export function loadCaseRow(q: Sql, caseId: string): Promise<CaseRow | undefined
  * The common check order for helper requests (IMPLEMENTATION.md): persona, then "exists and
  * is yours", then revoked, then expired. Unknown and not-yours get the same 404, so nobody
  * can tell whether a case exists.
+ *
+ * With `audit`, the case and grant ids are filled in once the case is known to be this
+ * helper's, before the revoked and expired checks, so the applicant's activity log can show
+ * an attempt after stopping as blocked.
  */
-export async function requireHelperCase(q: Sql, session: SessionRow, caseId: string, now: Date): Promise<CaseRow> {
+export async function requireHelperCase(
+  q: Sql,
+  session: SessionRow,
+  caseId: string,
+  now: Date,
+  audit?: AuditContext,
+): Promise<CaseRow> {
   requirePersona(session, 'helper');
   const row = isUuid(caseId) ? await loadCaseRow(q, caseId) : undefined;
   if (!row || row.claimed_helper_id === null || row.claimed_helper_id !== session.helper_id) {
     throw apiError('NOT_FOUND');
+  }
+  if (audit) {
+    audit.caseId = row.case_id;
+    audit.grantId = row.grant_id;
   }
   assertHelperGrantOpen(row, now);
   return row;
