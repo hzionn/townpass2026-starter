@@ -14,6 +14,7 @@ const ERROR_CATALOG: Record<ApiErrorCode, { status: number; message: string }> =
   VERSION_CONFLICT: { status: 409, message: '內容已在其他地方更新，請重新載入。' },
   ALREADY_SUBMITTED: { status: 409, message: '這份申請已送出，不能再修改。' },
   ATTACHMENT_EXISTS: { status: 409, message: '已有一份附件，請先刪除再上傳。' },
+  CONFIRMATION_REQUIRED: { status: 409, message: '本人還沒確認這個版本的內容，請先送交本人確認。' },
   IDEMPOTENCY_CONFLICT: { status: 409, message: '這次送出的內容和先前不同，請重新載入後再確認。' },
   ACTIVE_ASSISTANCE_EXISTS: { status: 409, message: '已有進行中的協助，請先查看目前狀態。' },
   INVITATION_EXPIRED: { status: 410, message: '協助碼已到期，請本人重新產生。' },

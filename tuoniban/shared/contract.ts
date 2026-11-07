@@ -18,6 +18,13 @@ export type GrantState = 'issued' | 'active' | 'completed' | 'revoked' | 'expire
 /** `review`, `saving`, `submitting` and `result_unknown` are front-end states only (spec §7.2). */
 export type CaseState = 'draft' | 'submitted';
 
+/**
+ * The applicant's say on the case's current revision (info.md F09, E03). Any change to the
+ * draft moves the revision on, so an earlier request or decision falls back to `none`.
+ * Only `confirmed` lets the helper submit.
+ */
+export type ConfirmationStatus = 'none' | 'pending' | 'confirmed' | 'returned';
+
 export const FIELD_IDS = [
   'locationPreference',
   'preferredDate',
@@ -61,6 +68,7 @@ export const API_ERROR_CODES = [
   'ALREADY_SUBMITTED',
   'ATTACHMENT_EXISTS',
   'IDEMPOTENCY_CONFLICT',
+  'CONFIRMATION_REQUIRED',
   'ACTIVE_ASSISTANCE_EXISTS',
   'INVITATION_EXPIRED',
   'ACCESS_EXPIRED',
@@ -187,6 +195,44 @@ export interface GrantCreatedResponse {
   serverNow: string;
 }
 
+/**
+ * What happened during the applicant's latest grant, in words the applicant can check
+ * (info.md E05). Built from audit events, so it never carries ids, form values or files.
+ * `blocked` is a helper action refused because the applicant stopped it or it expired.
+ */
+export const ACTIVITY_KINDS = [
+  'code_issued',
+  'claimed',
+  'draft_saved',
+  'attachment_uploaded',
+  'attachment_removed',
+  'confirmation_requested',
+  'confirmed',
+  'returned',
+  'submitted',
+  'stopped',
+  'blocked',
+] as const;
+export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
+
+export interface ActivityEvent {
+  kind: ActivityKind;
+  /** The latest time in the run when `count` > 1. */
+  at: string;
+  /** Repeats in a row are folded into one entry, e.g. five draft saves. */
+  count: number;
+}
+
+/**
+ * What the applicant is asked to confirm. Their own case, so the helper's name and phone are
+ * shown: the applicant should know who is helping. Protected values are never part of it.
+ */
+export interface ApplicantReview {
+  revision: number;
+  formData: CaseFormData;
+  attachmentReady: boolean;
+}
+
 /** GET /api/my-assistance returns this, or `data: null` when no grant exists. */
 export interface MyAssistanceResponse {
   grantId: string;
@@ -195,6 +241,12 @@ export interface MyAssistanceResponse {
   accessExpiresAt: string;
   caseId: string | null;
   receiptNo: string | null;
+  /** On the case's current revision; `none` when there is no case or it is submitted. */
+  confirmation: ConfirmationStatus;
+  /** Present while the confirmation is `pending` or `confirmed`, for the applicant to read. */
+  review: ApplicantReview | null;
+  /** Newest first. */
+  activity: ActivityEvent[];
   serverNow: string;
 }
 
@@ -244,6 +296,8 @@ export interface HelperCaseResponse {
   formData: CaseFormData;
   attachment: AttachmentInfo | null;
   receipt: Receipt | null;
+  /** On the current revision. Submitting needs `confirmed`. */
+  confirmation: ConfirmationStatus;
   accessExpiresAt: string;
   serverNow: string;
 }
@@ -272,6 +326,22 @@ export interface AttachmentUploadResponse {
 export interface AttachmentDeleteResponse {
   attachment: null;
   revision: number;
+}
+
+/**
+ * POST /api/cases/:id/request-confirmation (helper), and POST /api/cases/:id/confirm or
+ * /return (applicant). The revision pins what was read, so a decision never lands on a newer draft.
+ */
+export interface ConfirmationRequest {
+  expectedRevision: number;
+}
+
+/** POST /api/cases/:id/confirm and /return */
+export interface ConfirmationDecisionResponse {
+  caseId: string;
+  revision: number;
+  confirmation: 'confirmed' | 'returned';
+  serverNow: string;
 }
 
 /** POST /api/cases/:id/submit */

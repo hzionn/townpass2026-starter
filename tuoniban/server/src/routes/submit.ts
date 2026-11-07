@@ -1,11 +1,13 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { Express } from 'express';
-import { REQUIREMENT_ID, SCHEMA_VERSION, type CaseFormData, type SubmitResponse } from '../../../shared/contract.js';
-import { taipeiDateString, validateForSubmit } from '../../../shared/form.js';
+import { SCHEMA_VERSION, type CaseFormData, type SubmitResponse } from '../../../shared/contract.js';
+import { taipeiDateString } from '../../../shared/form.js';
 import { auditedTx } from '../audit.js';
 import {
   attachmentInfo,
+  confirmationOf,
   loadCaseRow,
+  readinessErrors,
   receiptOf,
   requireHelperCase,
   requireRevision,
@@ -15,7 +17,6 @@ import {
 import type { AppDeps } from '../deps.js';
 import { apiError } from '../errors.js';
 import { parseBody, SubmitBody } from '../http/json-body.js';
-import { FORM_RULES } from '../service-config.js';
 import { actorIdOf, requireSession } from '../session.js';
 import type { Sql } from '../storage/db.js';
 
@@ -57,9 +58,7 @@ export function registerSubmitRoutes(app: Express, deps: AppDeps): void {
       const now = clock.now();
       const session = await requireSession(tx, req, config.sessionSecret, now);
       audit.actorId = actorIdOf(session);
-      const row = await requireHelperCase(tx, session, req.params.id, now);
-      audit.caseId = row.case_id;
-      audit.grantId = row.grant_id;
+      const row = await requireHelperCase(tx, session, req.params.id, now, audit);
       const body = parseBody(req, res, SubmitBody);
       const idempotencyKey = body.idempotencyKey.toLowerCase();
       const fingerprint = requestFingerprint(row.case_id, body.expectedRevision);
@@ -72,11 +71,11 @@ export function registerSubmitRoutes(app: Express, deps: AppDeps): void {
       }
 
       requireRevision(row, body.expectedRevision);
-      // Re-run the full rules now: a date that was fine when saved may be today by now.
+      // The applicant must have confirmed exactly this revision (info.md F09, E03).
+      if (confirmationOf(row) !== 'confirmed') throw apiError('CONFIRMATION_REQUIRED');
       const form = JSON.parse(row.form_data) as CaseFormData;
-      const fieldErrors = validateForSubmit(form, now, FORM_RULES);
+      const fieldErrors = readinessErrors(row, now);
       const attachment = attachmentInfo(row);
-      if (!attachment) fieldErrors[REQUIREMENT_ID] = '請上傳一份練習附件。';
       if (row.schema_version !== SCHEMA_VERSION || Object.keys(fieldErrors).length > 0 || !attachment) {
         throw apiError('VALIDATION_FAILED', fieldErrors);
       }

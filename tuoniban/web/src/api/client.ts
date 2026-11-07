@@ -14,6 +14,7 @@ import {
   type ApplicantCaseResponse,
   type AttachmentDeleteResponse,
   type AttachmentUploadResponse,
+  type ConfirmationDecisionResponse,
   type DemoSessionResponse,
   type FieldErrors,
   type GrantCreatedResponse,
@@ -212,6 +213,20 @@ export const api = {
       `/cases/${encodeURIComponent(caseId)}/attachments/${encodeURIComponent(attachmentId)}`,
       { method: 'DELETE', json: { expectedRevision } },
     ),
+
+  /** S05: the helper asks the applicant to confirm this revision. */
+  requestConfirmation: (caseId: string, expectedRevision: number) =>
+    request<HelperCaseResponse>(`/cases/${encodeURIComponent(caseId)}/request-confirmation`, {
+      method: 'POST',
+      json: { expectedRevision },
+    }),
+
+  /** S02: the applicant's answer on exactly the revision they read. */
+  decideConfirmation: (caseId: string, decision: 'confirm' | 'return', expectedRevision: number) =>
+    request<ConfirmationDecisionResponse>(`/cases/${encodeURIComponent(caseId)}/${decision}`, {
+      method: 'POST',
+      json: { expectedRevision },
+    }),
 
   submit: (caseId: string, body: SubmitRequest) =>
     request<SubmitResponse>(`/cases/${encodeURIComponent(caseId)}/submit`, {

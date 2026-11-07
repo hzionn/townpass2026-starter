@@ -64,6 +64,15 @@ const SHARED_STATEMENTS = [
     size INTEGER NOT NULL,
     created_at TEXT NOT NULL
   )`,
+  // The applicant's say on one revision of the case (info.md F09). One row per case: a new
+  // request replaces the old one. A separate table, so databases made before it still work.
+  `CREATE TABLE IF NOT EXISTS case_confirmations (
+    case_id TEXT PRIMARY KEY REFERENCES cases (id),
+    revision INTEGER NOT NULL,
+    decision TEXT NOT NULL CHECK (decision IN ('pending', 'confirmed', 'returned')),
+    requested_at TEXT NOT NULL,
+    decided_at TEXT
+  )`,
   `CREATE TABLE IF NOT EXISTS submissions (
     id TEXT PRIMARY KEY,
     case_id TEXT NOT NULL UNIQUE REFERENCES cases (id),

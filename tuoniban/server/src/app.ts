@@ -6,6 +6,7 @@ import { noStore, originCheck, securityHeaders } from './http/security.js';
 import { staticSite } from './http/static-site.js';
 import { registerAttachmentRoutes } from './routes/attachments.js';
 import { registerCaseRoutes } from './routes/cases.js';
+import { registerConfirmationRoutes } from './routes/confirmation.js';
 import { registerGrantRoutes } from './routes/grants.js';
 import { registerPublicRoutes } from './routes/public.js';
 import { registerSessionRoutes } from './routes/session.js';
@@ -43,6 +44,7 @@ export function createApp(deps: AppDeps): Express {
   registerGrantRoutes(app, deps);
   registerCaseRoutes(app, deps);
   registerAttachmentRoutes(app, deps);
+  registerConfirmationRoutes(app, deps);
   registerSubmitRoutes(app, deps);
 
   app.use('/api', (_req, _res, next) => next(apiError('NOT_FOUND')));

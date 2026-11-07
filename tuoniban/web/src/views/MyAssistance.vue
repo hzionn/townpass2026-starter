@@ -8,8 +8,10 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vu
 import { buildAssistLink } from '../../../shared/assistLink';
 import type { GrantCreatedResponse, MyAssistanceResponse, Receipt } from '../../../shared/contract';
 import { ApiError, api, isAccessLost } from '../api/client';
+import CaseSummary from '../components/CaseSummary.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import FullPageState from '../components/FullPageState.vue';
+import { activityLabel, isWarningActivity } from '../lib/activity';
 import { refocusIfLost } from '../lib/focus';
 import { kindFromError, type S07Kind } from '../lib/pageState';
 import { startPolling } from '../lib/poller';
@@ -77,6 +79,14 @@ function applyGrant(next: MyAssistanceResponse | null): void {
   if (next?.grantId !== previous?.grantId) receipt.value = null;
 
   grant.value = next;
+
+  if (
+    previous &&
+    next?.confirmation === 'pending' &&
+    (previous.confirmation !== 'pending' || previous.review?.revision !== next.review?.revision)
+  ) {
+    announce('代辦者請你確認內容');
+  }
 
   if (previous && next && (previous.state !== next.state || previous.grantId !== next.grantId)) {
     // The new state explains what happened, so an older "could not …" message no longer applies.
@@ -209,6 +219,9 @@ function adoptNewCode(created: GrantCreatedResponse): void {
     accessExpiresAt: created.accessExpiresAt,
     caseId: null,
     receiptNo: null,
+    confirmation: 'none',
+    review: null,
+    activity: [{ kind: 'code_issued', at: created.serverNow, count: 1 }],
     serverNow: created.serverNow,
   });
 }
@@ -243,6 +256,24 @@ async function stopAssistance(): Promise<void> {
     const result = await api.revokeGrant(current.grantId);
     serverClock.sync(result.serverNow);
     applyGrant({ ...current, state: result.state, serverNow: result.serverNow });
+    // The activity log gains a "stopped" line; fetch it now rather than at the next poll.
+    await refresh();
+  });
+}
+
+/**
+ * The applicant's answer on what the helper prepared (info.md F09). Sent with the revision
+ * on screen, so a draft the helper changed meanwhile is refused and the page re-reads it.
+ */
+function decide(decision: 'confirm' | 'return'): Promise<void> {
+  const current = grant.value;
+  if (!current?.caseId || !current.review) return Promise.resolve();
+  const { caseId } = current;
+  const { revision } = current.review;
+  return runAction('目前無法回覆，請再試一次。', async () => {
+    await api.decideConfirmation(caseId, decision, revision);
+    announce(decision === 'confirm' ? '已確認內容' : '已退回，請代辦者修改');
+    await refresh();
   });
 }
 
@@ -347,9 +378,37 @@ function selectAll(event: FocusEvent): void {
 
       <!-- Claimed: there is no QR code to show any more -->
       <template v-else-if="state === 'active'">
+        <!-- The helper asks: the applicant reads it and decides (info.md F09, E03) -->
+        <section
+          v-if="grant.confirmation === 'pending' && grant.review"
+          class="confirm-request"
+          aria-labelledby="confirm-request-title"
+        >
+          <h2 id="confirm-request-title" class="section-title">請確認代辦者準備的內容</h2>
+          <p class="muted">你確認後，代辦者才能模擬送出。內容不對可以退回，請代辦者修改。</p>
+          <CaseSummary
+            :form="grant.review.formData"
+            :attachment-ready="grant.review.attachmentReady"
+            id-prefix="review"
+            :heading-level="3"
+          />
+          <div class="actions">
+            <button type="button" class="btn btn--primary" :aria-disabled="busy" @click="decide('confirm')">
+              確認內容
+            </button>
+            <button type="button" class="btn btn--secondary" :aria-disabled="busy" @click="decide('return')">
+              退回修改
+            </button>
+          </div>
+        </section>
+
         <div class="card card--tint">
           <p class="card__title">有人正在協助</p>
           <p class="status-line" role="timer">協助權限剩餘 {{ countdown }}</p>
+          <p v-if="grant.confirmation === 'confirmed'" class="muted">
+            <span aria-hidden="true">✓ </span>你已確認內容，等待代辦者模擬送出。
+          </p>
+          <p v-else-if="grant.confirmation === 'returned'" class="muted">你已退回內容，等待代辦者修改後再請你確認。</p>
           <p class="muted">代辦者不會取得你的身分原值。你隨時可以停止協助。</p>
         </div>
         <button type="button" class="btn btn--secondary" :aria-disabled="busy" @click="confirmStop">停止協助</button>
@@ -393,6 +452,23 @@ function selectAll(event: FocusEvent): void {
           </button>
         </div>
       </template>
+
+      <!-- What happened during this assistance (info.md E05). Polled with the state, never announced. -->
+      <section v-if="grant && grant.activity.length > 0" class="activity" aria-labelledby="activity-title">
+        <h2 id="activity-title" class="section-title">協助紀錄</h2>
+        <p class="muted">只記錄誰在什麼時候做了什麼，不包含填寫內容或附件。</p>
+        <ol class="activity__list">
+          <li
+            v-for="(event, index) in grant.activity"
+            :key="`${event.kind}-${event.at}-${index}`"
+            class="activity__item"
+            :class="{ 'activity__item--warning': isWarningActivity(event) }"
+          >
+            <time class="activity__time" :datetime="event.at">{{ formatTaipeiTime(event.at) }}</time>
+            <span><span v-if="isWarningActivity(event)" aria-hidden="true">⚠ </span>{{ activityLabel(event) }}</span>
+          </li>
+        </ol>
+      </section>
 
       <p v-if="actionError" class="notice notice--error"><span aria-hidden="true">⚠ </span>{{ actionError }}</p>
       <p v-if="connectionLost" class="muted connection-note">

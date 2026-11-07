@@ -311,6 +311,55 @@ textarea {
   margin-bottom: 0.25rem;
 }
 
+/* S02 confirmation request: the applicant's decision, set apart from the status card. */
+.confirm-request {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+/* S02 activity log: newest first, time on the left so the eye can scan it. */
+.activity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.activity__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity__item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.activity__item:first-child {
+  border-top: none;
+}
+
+.activity__time {
+  flex-shrink: 0;
+  min-width: 3.25rem;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.activity__item--warning {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
 .entry {
   display: flex;
   flex-direction: column;

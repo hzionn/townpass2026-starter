@@ -22,6 +22,7 @@ export function draftSuite(h: Harness): void {
           formData: emptyFormData(),
           attachment: null,
           receipt: null,
+          confirmation: 'none',
           accessExpiresAt: '2026-11-07T07:00:00.000Z',
           serverNow: START,
         },
@@ -64,7 +65,8 @@ export function draftSuite(h: Harness): void {
       expect(reloaded.body.data.formData.companionRequired).toBeNull();
 
       await helper.upload(caseId, { expectedRevision: 2 });
-      const res = await submit(helper, caseId, 3);
+      // The full rules run as soon as the helper asks the applicant to confirm.
+      const res = await helper.post(`/api/cases/${caseId}/request-confirmation`, { expectedRevision: 3 });
       expect(res.status).toBe(422);
       expect(res.body.error.fieldErrors).toEqual({ companionRequired: '請選擇是否需要陪同。' });
     });

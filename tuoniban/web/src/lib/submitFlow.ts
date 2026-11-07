@@ -81,6 +81,8 @@ export function createSubmitFlow(deps: SubmitFlowDeps) {
           case 'IDEMPOTENCY_CONFLICT':
             return await check();
           case 'VERSION_CONFLICT':
+          case 'CONFIRMATION_REQUIRED':
+            // Either way the summary on screen is not what may be sent: reload it first.
             key = null;
             phase.value = 'conflict';
             return { kind: 'conflict' };

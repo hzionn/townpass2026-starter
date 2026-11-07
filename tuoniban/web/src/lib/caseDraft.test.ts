@@ -36,6 +36,7 @@ function serverCase(overrides: Partial<HelperCaseResponse> = {}, form: Partial<C
     formData: { ...emptyFormData(), ...form },
     attachment: null,
     receipt: null,
+    confirmation: 'none',
     accessExpiresAt: '2026-11-07T07:00:00Z',
     serverNow: '2026-11-07T06:00:00Z',
     ...overrides,
