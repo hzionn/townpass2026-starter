@@ -1,6 +1,22 @@
 # CarePass 初版驗證紀錄
 
-日期：2026-11-07。版本對應本次 `feature/caregiver` 的照護通服務實作。
+日期：2026-11-07。
+
+## 架構拆分後
+
+Flutter App 已移回獨立的 TownPass repository，網站 build 不再同步 Flutter assets；App 必須指定 `CAREPASS_URL`。Vercel 設定與部署方式見 [部署說明](../carepass/DEPLOYMENT.md)。拆分後檢查結果記錄於本節；下方「初版歷史紀錄」只代表舊內建版本，不能當成 HTTPS 遠端整合已通過的證據。
+
+- Node.js 24.22.1：`npm run check`、16 項 `npm test` 及 `npm run build` 通過；產物為約 343 KB 的 `carepass/dist/index.html`。
+- 獨立 TownPass：`flutter test test/carepass_service_test.dart --no-pub` 共 6 項通過，涵蓋服務入口、HTTPS 網址限制、未設定提示、遠端網址傳遞、實際 local URI 導覽，以及模擬原生網路／HTTP 錯誤與重試。
+- Flutter 本次修改範圍共 7 個檔案的靜態分析通過，無問題；未執行其他既有 Flutter 測試或原生平台建置。
+- 確認網站 build 未重建內層 `TownPass/`，獨立 App 也沒有新增 `assets/carepass/`；兩邊建置已解除資產複製依賴。
+- 既有未提交的 iOS 修改逐位元保留；原內層 Flutter 目錄已完整移至本機暫存備份，未納入服務 repository。
+- 已提供 Vercel 設定檔與部署指引，但未執行 Vercel build 或公開部署。
+- 使用者將自行部署 Vercel；公開網址與 App 遠端整合待部署後驗證。
+
+## 初版歷史紀錄
+
+以下內容保留舊版實作與測試背景，內建網頁與同 repo 路徑已不適用。
 
 ## TownPass UI 對齊
 
@@ -47,7 +63,9 @@
 - 尚未建立公開 HTTPS 代管網址。App 預設使用內建網頁，`CAREPASS_URL` 可在實際部署後切換。
 - 主辦指定授權聲明尚待取得原文；AGPL-3.0 與既有 TownPass 授權告示已保留。
 
-## 重現方式
+## 舊版重現方式（已停用）
+
+目前請依 `carepass/DEPLOYMENT.md` 與獨立 TownPass repository 的 `docs/CAREPASS_INTEGRATION.md` 執行。以下僅保留舊版指令：
 
 ```bash
 cd carepass

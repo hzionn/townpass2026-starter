@@ -2,7 +2,7 @@
 
 2026 臺北秋季程式設計節「城市通微服務大黑客松」的隊伍起始 repo。
 
-題目已於 2026-11-07 公布，隊伍組別為「用不了」。目前包含團隊共用規範、匯入的 TownPass App，以及 `feature/caregiver` 開發的照護通 CarePass；實作與驗證狀態見下方連結。
+題目已於 2026-11-07 公布，隊伍組別為「用不了」。目前包含團隊共用規範，以及 `feature/caregiver` 開發的照護通 CarePass；Flutter App 已拆回獨立的 TownPass repository；實作與驗證狀態見下方連結。
 
 ## 裡面有什麼
 
@@ -22,11 +22,10 @@
 
 | 目錄 | 用途 |
 |---|---|
-| `TownPass/` | 已匯入的 Flutter App，含照護通服務入口與內建網頁 |
 | `carepass/` | React／TypeScript 網頁原始碼、官方資料快照及測試 |
 | `docs/` | 修正版 POC 規格與開發流程 |
 
-前端開發、App 執行與更新步驟請見 [CarePass README](carepass/README.md)。網頁預設隨 App 封裝，可直接從「服務 ＞ 熱門 ＞ 照護通」開啟；正式部署後也能切換 HTTPS 網址。
+前端開發請見 [CarePass README](carepass/README.md)，Vercel 設定與部署步驟請見 [部署說明](carepass/DEPLOYMENT.md)。Flutter App 位於獨立的 [TownPass repository](https://github.com/hzionn/TownPass)，兩邊分支皆為 `feature/caregiver`；App 透過 `CAREPASS_URL` 載入部署後的 HTTPS 網址。本 repository 不包含 Flutter 原始碼或 App 封裝資產。
 
 一句話：**做一個手機版網頁，放上網路取得網址，再從城市通 App 裡打開它。**
 

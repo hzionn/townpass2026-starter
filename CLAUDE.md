@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。`TownPass/` 為 Flutter App；`carepass/` 為 React／TypeScript 照護通微服務，功能與執行方式見 `carepass/README.md`，規格與流程見 `docs/`。前端修改後執行 `npm run build` 更新 App 內建網頁；新決定同步更新 `.claude/rules/decisions.md`。
+這是 2026 臺北秋季程式設計節「城市通微服務大黑客松」的參賽 repo。本 repository 僅維護 `carepass/` React／TypeScript 照護通微服務；Flutter App 位於獨立的 `TownPass` repository，兩邊分支皆為 `feature/caregiver`。功能見 `carepass/README.md`，Vercel 部署見 `carepass/DEPLOYMENT.md`，規格與流程見 `docs/`。在 `carepass/` 執行 `npm run build` 只產生網站 `dist/`，不得複製到 Flutter assets 或重新加入內層 TownPass。App 透過 `CAREPASS_URL` 載入 HTTPS 網址；新決定同步更新 `.claude/rules/decisions.md`。
 
 ## 隊伍背景
 

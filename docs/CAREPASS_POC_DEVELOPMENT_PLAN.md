@@ -2,7 +2,7 @@
 
 規劃日期：2026-11-07，Asia/Taipei。對應 [修正版 POC 規格](CAREPASS_POC_SPEC.md)。
 
-本文件保留預計的完整開發流程。CarePass 前端與城市通入口已開始實作；目前預設載入隨 App 封裝的單一 HTML，可選用 HTTPS 網址。實際啟動方式、測試結果與未驗證事項見 `../carepass/README.md`。
+本文件保留預計的完整開發流程。CarePass 前端與城市通入口已開始實作；Flutter 與網站已拆成獨立 repository，App 必須載入網站部署後的 HTTPS 網址。實際啟動方式、測試結果與未驗證事項見 `../carepass/README.md`。
 
 ## 1. 排程假設與人力
 
@@ -65,7 +65,7 @@ S1 前端骨架＋城市通開啟測試
 
 ## 4. S1：建立專案並提早打通城市通
 
-建議在現有 repository 加入 `carepass/`，維持前端與 Flutter 各自的建置流程。第一版不進行跨專案工具鏈重構。
+網站位於本 repository 的 `carepass/`；Flutter 位於獨立的 TownPass repository。兩邊各自建置，網站部署至 Vercel 後，App 透過 `CAREPASS_URL` 載入 HTTPS 網址。
 
 ```text
 townpass2026-starter/
@@ -80,10 +80,11 @@ townpass2026-starter/
 │  ├─ scripts/          # 匯入與資料檢查
 │  ├─ tests/
 │  └─ README.md
-├─ docs/
+└─ docs/
 │  ├─ CAREPASS_POC_SPEC.md
 │  └─ CAREPASS_POC_DEVELOPMENT_PLAN.md
-└─ TownPass/            # 既有城市通 App 與內建網頁
+
+TownPass/              # 獨立 repository：城市通 App、入口及 bridge
 ```
 
 執行工作：

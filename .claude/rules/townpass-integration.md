@@ -1,6 +1,6 @@
 # 作品和城市通 App 的關係
 
-本 repository 已將 App 匯入 `TownPass/`，照護通網頁位於 `carepass/`，執行方式優先參考 `carepass/README.md`。目前支援內建單一 HTML，亦可指定實際 HTTPS 網址；下方 clone 步驟保留作為上游來源參考。
+本 repository 僅保留 `carepass/` 照護通網頁，Flutter App 位於獨立的 `TownPass` repository，兩邊分支皆為 `feature/caregiver`。網頁 build 只輸出 `carepass/dist/`；Vercel 部署設定與 Root Directory 步驟見 `carepass/DEPLOYMENT.md`。App 透過 `CAREPASS_URL` 載入實際 HTTPS 網址，不含內建網頁；App 整合步驟見 TownPass repository 的 `docs/CAREPASS_INTEGRATION.md`。下方 `lib/` 路徑皆相對於獨立的 TownPass repository。
 
 參賽作品通常是一個微服務網頁，視需求搭配後端，App 本身不一定要改。官方範例用 Vue 3，但語言和框架都不限，React 或純 HTML 也可以，後端同樣不限語言。
 

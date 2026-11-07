@@ -34,7 +34,7 @@ POC 要驗證三件事：
 
 ### 第一版必要功能 P0
 
-- 城市通內的 CarePass 服務入口與 WebView，預設內建資產，可指定 HTTPS 網址。
+- 城市通內的 CarePass 服務入口與 WebView，載入獨立部署的 HTTPS 網址。
 - 簡短需求引導，所有狀態題都有「不清楚」選項。
 - 三條聯絡路徑及各自的理由、官方出處。
 - 居家喘息特約單位清單、服務範圍及詳情。
@@ -138,7 +138,7 @@ R0／R1／R3／R4 同樣可以建立行動清單；不要求先選擇服務單�
 開發／更新時：官方 CSV → 匯入與檢查腳本 → providers.json + sources.json
 
 使用時：城市通 Flutter App
-                  ↓ WebView（預設內建網頁；選用 HTTPS 網址）
+                  ↓ WebView（載入 Vercel HTTPS 網址）
             CarePass React + TypeScript
                   ├─ 本地規則與官方資料快照
                   ├─ 問卷、結果與行動清單
@@ -146,7 +146,7 @@ R0／R1／R3／R4 同樣可以建立行動清單；不要求先選擇服務單�
                   └─ 城市通 bridge：phone_call
 ```
 
-實作調整：第一版預設以單一 HTML 封裝於 `TownPass/assets/carepass/index.html`，不必先部署即可從服務內開啟；可透過 `CAREPASS_URL` 指定實際 HTTPS 網址。
+實作調整：Flutter App 與網站分屬獨立 repository。網站由 `carepass/vercel.json` 設定獨立部署至 Vercel；App 必須透過 `CAREPASS_URL` 指定實際 HTTPS 網址，沒有內建網頁備援。下方 `TownPass/` 路徑代表獨立的 App repository。
 
 前端採 Vite、React、TypeScript 與少量 CSS design tokens；避免第一版同時導入多套 UI 或狀態管理工具。靜態網站預計部署至 Firebase Hosting，既有可用的 HTTPS 靜態代管也可沿用。使用端不需查詢自建後端或資料庫。
 

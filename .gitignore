@@ -6,3 +6,5 @@ carepass/.env*
 carepass/test-results/
 carepass/playwright-report/
 *.log
+.vercel/
+**/.vercel/

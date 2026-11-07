@@ -1,6 +1,6 @@
 # CarePass 第三方套件與授權
 
-新增程式碼採 AGPL-3.0-only；既有 TownPass 授權見 `../TownPass/LICENSE`。以下版本來自已安裝的 lockfile；完整開發相依樹見 `package-lock.json`。
+新增程式碼採 AGPL-3.0-only；Flutter App 已拆回獨立的 TownPass repository，其既有授權見該 repository 的 `LICENSE`。以下版本來自已安裝的 lockfile；完整開發相依樹見 `package-lock.json`。
 
 | 套件 | 版本 | 授權 |
 |---|---|---|

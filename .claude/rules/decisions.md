@@ -22,10 +22,10 @@
 
 - 前端：React 19、TypeScript、Vite；單一 HTML 打包供 WebView 載入。
 - 後端（沒有就寫無）：無；規則與官方資料快照在網頁內處理，清單存於本機 localStorage。
-- 部署：目前隨 App 封裝 `TownPass/assets/carepass/index.html`；可使用 `CAREPASS_URL` 切換實際 HTTPS 代管網址，尚未公開部署。
-- Demo 裝置：iPhone 17 Pro／iOS 26.5 模擬器已通過完整服務流程及關閉重開保存測試；實機電話、App 重啟與 Android 平台另驗收。
+- 部署：網站獨立部署至 Vercel，Root Directory 為 `carepass`，設定檔為 `carepass/vercel.json`。尚未公開部署；由使用者自行部署。Flutter App 位於獨立的 TownPass repository，必須以 `CAREPASS_URL` 指定有效 HTTPS 網址，無內建網頁備援。
+- Demo 裝置：拆分前的內建網頁曾在 iPhone 17 Pro／iOS 26.5 模擬器通過完整流程及關閉重開保存測試；拆分後的 HTTPS 流程待部署後重新驗證，實機電話、App 重啟與 Android 平台另驗收。
 - 入口：服務清單「防疫醫療」及服務頁「熱門」，`local://carepass` → `/carepass`。
-- UI：對齊 TownPass 的 TPColors／TPTextStyles／TPButton／TPCard，網頁 tokens 位於 `carepass/src/tokens.css`。App 內沿用原生標頭；新版 HTML 需重新 build 並安裝至手機。
+- UI：對齊 TownPass 的 TPColors／TPTextStyles／TPButton／TPCard，網頁 tokens 位於 `carepass/src/tokens.css`。App 內沿用原生標頭；網頁內容更新只需重新部署相同網址，不需重裝 App。更換網址才需更新 Flutter 編譯設定。
 - 分支：`feature/caregiver`；透過 Commit、Push、PR 供隊友 Review。
 
 ## 分工
