@@ -1,7 +1,20 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { emptyFormData } from '../../../shared/form.js';
-import { createGrant, errorCode, openCase, readyCase, redeem, saveDraft, submit, submittedCase, uploadPdf, VALID_FORM } from '../support/flows.js';
+import {
+  confirmRevision,
+  createGrant,
+  errorCode,
+  filledCase,
+  openCase,
+  readyCase,
+  redeem,
+  saveDraft,
+  submit,
+  submittedCase,
+  uploadPdf,
+  VALID_FORM,
+} from '../support/flows.js';
 import { START, type Harness } from '../support/harness.js';
 
 export function submitSuite(h: Harness): void {
@@ -52,8 +65,10 @@ export function submitSuite(h: Harness): void {
     });
 
     it('requires every field and the attachment', async () => {
-      const { helper, caseId } = await openCase(h);
-      const empty = await submit(helper, caseId, 1);
+      const { applicant, helper, caseId } = await openCase(h);
+      const ask = (expectedRevision: number) =>
+        helper.post(`/api/cases/${caseId}/request-confirmation`, { expectedRevision });
+      const empty = await ask(1);
       expect(empty.status).toBe(422);
       expect(Object.keys(empty.body.error.fieldErrors).sort()).toEqual(
         [
@@ -67,11 +82,37 @@ export function submitSuite(h: Harness): void {
         ].sort(),
       );
       const revision = await saveDraft(helper, caseId, 1);
-      const noAttachment = await submit(helper, caseId, revision);
+      const noAttachment = await ask(revision);
       expect(noAttachment.body.error.fieldErrors).toEqual({ 'practice-document': '請上傳一份練習附件。' });
       const withNotesEmpty = await saveDraft(helper, caseId, revision, { ...VALID_FORM, notes: '' });
       const finalRevision = await uploadPdf(helper, caseId, withNotesEmpty);
+      await confirmRevision(applicant, helper, caseId, finalRevision);
       expect((await submit(helper, caseId, finalRevision)).status).toBe(200);
+    });
+
+    it('needs the applicant to have confirmed exactly this revision (info.md F09, E03)', async () => {
+      const filled = await filledCase(h);
+      const { applicant, helper, caseId } = filled;
+      const notAsked = await submit(helper, caseId, filled.revision);
+      expect(notAsked.status).toBe(409);
+      expect(errorCode(notAsked)).toBe('CONFIRMATION_REQUIRED');
+
+      const ask = await helper.post(`/api/cases/${caseId}/request-confirmation`, { expectedRevision: filled.revision });
+      expect(ask.body.data).toMatchObject({ confirmation: 'pending', revision: filled.revision });
+      expect(errorCode(await submit(helper, caseId, filled.revision))).toBe('CONFIRMATION_REQUIRED');
+
+      // Confirming does not move the revision, so the helper submits what the applicant read.
+      const ok = await applicant.post(`/api/cases/${caseId}/confirm`, { expectedRevision: filled.revision });
+      expect(ok.body.data).toMatchObject({ confirmation: 'confirmed', revision: filled.revision });
+
+      // A change after confirming needs a new confirmation.
+      const changed = await saveDraft(helper, caseId, filled.revision, { ...VALID_FORM, notes: '改過了' });
+      expect((await helper.get(`/api/cases/${caseId}`)).body.data.confirmation).toBe('none');
+      expect(errorCode(await submit(helper, caseId, changed))).toBe('CONFIRMATION_REQUIRED');
+      expect(await h.count('submissions')).toBe(0);
+
+      await confirmRevision(applicant, helper, caseId, changed);
+      expect((await submit(helper, caseId, changed)).status).toBe(200);
     });
 
     it('checks the revision before validating', async () => {
@@ -166,6 +207,7 @@ export function submitSuite(h: Harness): void {
       const { caseId } = await redeem(helper, second.token);
       let revision = await saveDraft(helper, caseId, 1, { ...VALID_FORM, preferredDate: '2026-11-09' });
       revision = await uploadPdf(helper, caseId, revision);
+      await confirmRevision(first.applicant, helper, caseId, revision);
       const sameDay = await submit(helper, caseId, revision);
       expect(sameDay.body.data.receipt.receiptNo).toBe('DEMO-20261107-0002');
 
@@ -176,6 +218,7 @@ export function submitSuite(h: Harness): void {
       const claimed = await redeem(helper3, third.token);
       let rev3 = await saveDraft(helper3, claimed.caseId, 1, { ...VALID_FORM, preferredDate: '2026-11-09' });
       rev3 = await uploadPdf(helper3, claimed.caseId, rev3);
+      await confirmRevision(first.applicant, helper3, claimed.caseId, rev3);
       const nextDay = await submit(helper3, claimed.caseId, rev3);
       expect(nextDay.body.data.receipt.receiptNo).toBe('DEMO-20261108-0001');
     });

@@ -104,6 +104,22 @@ test('the 2-minute demo: code, scan, fill, upload, submit, and the applicant see
   await expect(helper.getByText(/不代表健檢名額或正式預約成功/)).toBeVisible();
   await shot(helper, 's05-review');
 
+  // The helper cannot submit yet: the applicant has to confirm this exact content first (info.md F09).
+  await expect(helper.getByRole('button', { name: '確認並模擬送出' })).toHaveCount(0);
+  await helper.getByRole('button', { name: '送交本人確認' }).click();
+  await expect(helper.getByText('已送交本人確認')).toBeVisible();
+
+  // The applicant's page shows what to confirm by itself (5-second poll), with no protected values.
+  const request = applicant.getByRole('region', { name: '請確認代辦者準備的內容' });
+  await expect(request).toBeVisible({ timeout: 15_000 });
+  await expect(request).toContainText('稱呼：小王');
+  await expect(request).toContainText('身分資料：已備妥，原值不顯示');
+  await shot(applicant, 's02-confirm-request');
+  await request.getByRole('button', { name: '確認內容' }).click();
+  await expect(applicant.getByText('你已確認內容，等待代辦者模擬送出。')).toBeVisible();
+
+  // The helper's page picks up the answer by itself too.
+  await expect(helper.getByText('本人已確認這份內容')).toBeVisible({ timeout: 15_000 });
   await helper.getByRole('button', { name: '確認並模擬送出' }).click();
   await expect(helper.getByRole('heading', { level: 1, name: '模擬送出完成' })).toBeVisible();
   const receiptNo = (await helper.getByText(/DEMO-\d{8}-\d{4}/).first().textContent())?.match(/DEMO-\d{8}-\d{4}/)?.[0];
@@ -248,4 +264,43 @@ test('main screens have no serious accessibility violations and fit 320px (AT14)
   await helper.getByRole('button', { name: '開始協助' }).click();
   await expect(helper.getByRole('heading', { level: 1, name: '協助填寫需求' })).toBeVisible();
   await check(helper, 'S04');
+
+  await fillForm(helper);
+  await helper.getByRole('button', { name: '使用內建合成範例' }).click();
+  await expect(helper.getByText(/已上傳/)).toBeVisible();
+  await helper.getByRole('button', { name: '下一步：確認內容' }).click();
+  await expect(helper.getByRole('heading', { level: 1, name: '確認這次需求' })).toBeVisible();
+  await check(helper, 'S05');
+  await helper.getByRole('button', { name: '送交本人確認' }).click();
+  await expect(applicant.getByRole('region', { name: '請確認代辦者準備的內容' })).toBeVisible({ timeout: 15_000 });
+  await check(applicant, 'S02 confirm');
+});
+
+test('the applicant can send the content back, and the helper asks again after fixing it (info.md E03)', async ({
+  browser,
+}) => {
+  const applicant = await newPhone(browser);
+  const helper = await newPhone(browser);
+  const link = await applicantCreatesCode(applicant);
+  await helperOpensByPasting(helper, link);
+  await fillForm(helper);
+  await helper.getByRole('button', { name: '使用內建合成範例' }).click();
+  await expect(helper.getByText(/已上傳/)).toBeVisible();
+  await helper.getByRole('button', { name: '下一步：確認內容' }).click();
+  await helper.getByRole('button', { name: '送交本人確認' }).click();
+
+  const request = applicant.getByRole('region', { name: '請確認代辦者準備的內容' });
+  await request.getByRole('button', { name: '退回修改' }).click({ timeout: 15_000 });
+  await expect(applicant.getByText('你已退回內容，等待代辦者修改後再請你確認。')).toBeVisible();
+
+  await expect(helper.getByRole('main').getByText(/本人退回了這份內容。請返回修改/)).toBeVisible({ timeout: 15_000 });
+  await helper.getByRole('button', { name: '返回修改' }).click();
+  await helper.getByLabel(/^代辦稱呼/).fill('小王（女兒）');
+  await helper.getByRole('button', { name: '下一步：確認內容' }).click();
+  await helper.getByRole('button', { name: '送交本人確認' }).click();
+
+  await expect(request).toContainText('稱呼：小王（女兒）', { timeout: 15_000 });
+  await request.getByRole('button', { name: '確認內容' }).click();
+  await expect(helper.getByRole('button', { name: '確認並模擬送出' })).toBeVisible({ timeout: 15_000 });
+  await expect(applicant.getByRole('region', { name: '協助紀錄' })).toContainText('你退回內容，請代辦者修改');
 });

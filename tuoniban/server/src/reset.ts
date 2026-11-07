@@ -9,6 +9,7 @@ const TABLES_IN_DELETE_ORDER = [
   'audit_events',
   'submissions',
   'attachments',
+  'case_confirmations',
   'cases',
   'assistance_grants',
   'demo_sessions',

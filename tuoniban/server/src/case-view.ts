@@ -1,18 +1,24 @@
 import {
+  REQUIREMENT_ID,
   SCHEMA_VERSION,
   SERVICE_ID,
   type ApplicantCaseResponse,
   type AttachmentInfo,
   type CaseFormData,
+  type ApplicantReview,
   type CaseState,
+  type ConfirmationStatus,
+  type FieldErrors,
   type GrantState,
   type HelperCaseResponse,
   type Receipt,
 } from '../../shared/contract.js';
+import { validateForSubmit } from '../../shared/form.js';
 import type { AuditContext } from './audit.js';
 import { ATTACHMENT_DISPLAY_NAME, RECEIPT_MESSAGE, SERVICE_NAME } from './constants.js';
 import { apiError } from './errors.js';
 import { assertHelperGrantOpen } from './grant-rules.js';
+import { FORM_RULES } from './service-config.js';
 import { requirePersona, type SessionRow } from './session.js';
 import type { Sql } from './storage/db.js';
 
@@ -49,6 +55,8 @@ export interface CaseRow {
   idempotency_key: string | null;
   request_fingerprint: string | null;
   snapshot: string | null;
+  confirmation_revision: number | null;
+  confirmation_decision: 'pending' | 'confirmed' | 'returned' | null;
 }
 
 /** Fixed at submit time. Later reads show this, not the case row (spec §10.4). */
@@ -67,12 +75,14 @@ export function loadCaseRow(q: Sql, caseId: string): Promise<CaseRow | undefined
             su.public_label AS applicant_label,
             a.id AS attachment_id, a.mime AS attachment_mime, a.size AS attachment_size,
             a.storage_key AS attachment_storage_key,
-            s.receipt_no, s.submitted_at, s.idempotency_key, s.request_fingerprint, s.snapshot
+            s.receipt_no, s.submitted_at, s.idempotency_key, s.request_fingerprint, s.snapshot,
+            cc.revision AS confirmation_revision, cc.decision AS confirmation_decision
        FROM cases c
        JOIN assistance_grants g ON g.id = c.grant_id
        JOIN demo_subjects su ON su.id = g.subject_id
        LEFT JOIN attachments a ON a.case_id = c.id
        LEFT JOIN submissions s ON s.case_id = c.id
+       LEFT JOIN case_confirmations cc ON cc.case_id = c.id
       WHERE c.id = ?`,
     [caseId],
   );
@@ -115,6 +125,35 @@ export function requireRevision(row: CaseRow, expectedRevision: number): void {
   if (row.revision !== expectedRevision) throw apiError('VERSION_CONFLICT');
 }
 
+/**
+ * The full submit rules, re-run now: a date that was fine when saved may be today by now.
+ * Used before asking the applicant to confirm and again at submit.
+ */
+export function readinessErrors(row: CaseRow, now: Date): FieldErrors {
+  const fieldErrors = validateForSubmit(JSON.parse(row.form_data) as CaseFormData, now, FORM_RULES);
+  if (!attachmentInfo(row)) fieldErrors[REQUIREMENT_ID] = '請上傳一份練習附件。';
+  return fieldErrors;
+}
+
+/** The decision counts only for the revision it was made on; any later change resets it. */
+export function confirmationOf(row: CaseRow): ConfirmationStatus {
+  if (row.case_state === 'submitted') return 'none';
+  return row.confirmation_revision === row.revision && row.confirmation_decision !== null
+    ? row.confirmation_decision
+    : 'none';
+}
+
+/** What the applicant reads before deciding, while there is something to decide or keep. */
+export function applicantReviewOf(row: CaseRow): ApplicantReview | null {
+  const status = confirmationOf(row);
+  if (status !== 'pending' && status !== 'confirmed') return null;
+  return {
+    revision: row.revision,
+    formData: JSON.parse(row.form_data) as CaseFormData,
+    attachmentReady: row.attachment_id !== null,
+  };
+}
+
 export function attachmentInfo(row: CaseRow): AttachmentInfo | null {
   if (row.attachment_id === null || row.attachment_mime === null || row.attachment_size === null) return null;
   return {
@@ -145,6 +184,7 @@ export function toHelperCaseResponse(row: CaseRow, now: Date): HelperCaseRespons
     formData: snapshot ? snapshot.formData : (JSON.parse(row.form_data) as CaseFormData),
     attachment: snapshot ? snapshot.attachment : attachmentInfo(row),
     receipt: receiptOf(row),
+    confirmation: confirmationOf(row),
     accessExpiresAt: row.access_expires_at,
     serverNow: now.toISOString(),
   };

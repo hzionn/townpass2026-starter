@@ -15,7 +15,7 @@ import { loadActivity } from '../activity.js';
 import { auditedTx } from '../audit.js';
 import { addMinutes } from '../clock.js';
 import { ACCESS_MINUTES, CLAIM_MINUTES, GRANT_SCOPES } from '../constants.js';
-import { isUuid } from '../case-view.js';
+import { applicantReviewOf, confirmationOf, isUuid, loadCaseRow } from '../case-view.js';
 import type { AppDeps } from '../deps.js';
 import { apiError } from '../errors.js';
 import { effectiveGrantState, isWithinAccessWindow } from '../grant-rules.js';
@@ -147,6 +147,8 @@ export function registerGrantRoutes(app: Express, deps: AppDeps): void {
         LIMIT 1`,
       [session.subject_id, SERVICE_ID],
     );
+    // The case's own view decides confirmation, the same way the helper sees it.
+    const caseRow = row?.case_id ? await loadCaseRow(db, row.case_id) : undefined;
     const data: MyAssistanceResponse | null = row
       ? {
           grantId: row.id,
@@ -155,6 +157,8 @@ export function registerGrantRoutes(app: Express, deps: AppDeps): void {
           accessExpiresAt: row.access_expires_at,
           caseId: row.case_id,
           receiptNo: row.receipt_no,
+          confirmation: caseRow ? confirmationOf(caseRow) : 'none',
+          review: caseRow ? applicantReviewOf(caseRow) : null,
           activity: await loadActivity(db, row.id, row.created_at),
           serverNow: now.toISOString(),
         }

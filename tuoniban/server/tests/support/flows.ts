@@ -55,6 +55,14 @@ export async function submit(helper: Browser, caseId: string, expectedRevision: 
   return helper.post(`/api/cases/${caseId}/submit`, { expectedRevision, idempotencyKey: key });
 }
 
+/** The helper asks, then the applicant confirms, the given revision (info.md F09). */
+export async function confirmRevision(applicant: Browser, helper: Browser, caseId: string, expectedRevision: number) {
+  const asked = await helper.post(`/api/cases/${caseId}/request-confirmation`, { expectedRevision });
+  expect(asked.status, asked.text).toBe(200);
+  const confirmed = await applicant.post(`/api/cases/${caseId}/confirm`, { expectedRevision });
+  expect(confirmed.status, confirmed.text).toBe(200);
+}
+
 /** An applicant, a helper, and a case the helper has just claimed (revision 1). */
 export async function openCase(h: Harness) {
   const applicant = await h.browser().login('applicant');
@@ -64,8 +72,15 @@ export async function openCase(h: Harness) {
   return { applicant, helper, grant, caseId: claim.caseId };
 }
 
-/** A case with a valid form and attachment, ready to submit. */
+/** A case with a valid form and attachment, confirmed by the applicant: ready to submit. */
 export async function readyCase(h: Harness) {
+  const filled = await filledCase(h);
+  await confirmRevision(filled.applicant, filled.helper, filled.caseId, filled.revision);
+  return filled;
+}
+
+/** A case with a valid form and attachment, not yet confirmed by the applicant. */
+export async function filledCase(h: Harness) {
   const opened = await openCase(h);
   let revision = await saveDraft(opened.helper, opened.caseId, 1);
   revision = await uploadPdf(opened.helper, opened.caseId, revision);

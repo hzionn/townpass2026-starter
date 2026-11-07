@@ -31,14 +31,26 @@ export function activitySuite(h: Harness): void {
       h.clock.advanceMinutes(1);
       revision = await uploadPdf(helper, caseId, revision);
       h.clock.advanceMinutes(1);
+      await helper.post(`/api/cases/${caseId}/request-confirmation`, { expectedRevision: revision });
+      h.clock.advanceMinutes(1);
+      await applicant.post(`/api/cases/${caseId}/confirm`, { expectedRevision: revision });
+      h.clock.advanceMinutes(1);
       const key = crypto.randomUUID();
       expect((await submit(helper, caseId, revision, key)).status).toBe(200);
       h.clock.advanceMinutes(1);
       expect((await submit(helper, caseId, revision, key)).status).toBe(200);
 
       const data = await mine(applicant);
-      expect(story(data.activity)).toEqual(['code_issued', 'claimed', 'draft_saved×2', 'attachment_uploaded', 'submitted']);
-      expect(data.activity[0]).toEqual({ kind: 'submitted', at: '2026-11-07T06:06:00.000Z', count: 1 });
+      expect(story(data.activity)).toEqual([
+        'code_issued',
+        'claimed',
+        'draft_saved×2',
+        'attachment_uploaded',
+        'confirmation_requested',
+        'confirmed',
+        'submitted',
+      ]);
+      expect(data.activity[0]).toEqual({ kind: 'submitted', at: '2026-11-07T06:08:00.000Z', count: 1 });
       expect(data.activity.at(-1)).toEqual({ kind: 'code_issued', at: START, count: 1 });
       // Folded entries carry the time of the latest one.
       expect(data.activity.find((event) => event.kind === 'draft_saved')?.at).toBe('2026-11-07T06:04:00.000Z');

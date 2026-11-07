@@ -65,6 +65,8 @@ export const SaveDraftBody = z.object({ expectedRevision: Revision, formData: Fo
 
 export const DeleteAttachmentBody = z.object({ expectedRevision: Revision }).strict();
 
+export const ConfirmationBody = z.object({ expectedRevision: Revision }).strict();
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const SubmitBody = z

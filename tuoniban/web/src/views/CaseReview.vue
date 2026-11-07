@@ -1,16 +1,22 @@
 <script setup lang="ts">
-/** S05: the helper checks the summary and simulates submitting (spec §5 S05, §10.6). */
-import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue';
+/**
+ * S05: the helper checks the summary, asks the applicant to confirm it, and only then
+ * simulates submitting (spec §5 S05, §10.6; info.md F09). While the applicant decides,
+ * this page polls the case so the answer shows up by itself.
+ */
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { HelperCaseResponse } from '../../../shared/contract';
-import { api, isAccessLost } from '../api/client';
+import { ApiError, api, isAccessLost } from '../api/client';
+import CaseSummary from '../components/CaseSummary.vue';
 import FullPageState from '../components/FullPageState.vue';
 import { newIdempotencyKey } from '../lib/idempotencyKey';
 import { kindFromError, type S07Kind } from '../lib/pageState';
 import { caseRoute } from '../lib/routes';
-import { locationSourceNote, optionFor, optionLabel, submitErrors } from '../lib/serviceConfig';
+import { startPolling } from '../lib/poller';
+import { locationSourceNote, submitErrors } from '../lib/serviceConfig';
 import { createSubmitFlow, type SubmitOutcome } from '../lib/submitFlow';
-import { formatCalendarDate, serverClock } from '../lib/time';
+import { serverClock } from '../lib/time';
 import { announce } from '../stores/announcer';
 import { setPendingFieldErrors } from '../stores/pendingErrors';
 import { loadService, service } from '../stores/service';
@@ -22,10 +28,14 @@ const CHECKING_MESSAGE = '正在確認送出結果';
 const RETRY_MESSAGE = '這次送出沒有完成，內容仍是草稿。可以再試一次。';
 const UNKNOWN_MESSAGE = '目前還無法確認送出結果。請確認網路後再確認一次。';
 const CONFLICT_MESSAGE = '這份需求已在其他分頁或裝置變更，請重新載入摘要再確認。';
+const ASK_FAILED_MESSAGE = '目前無法送交本人確認，請再試一次。';
+const POLL_INTERVAL_MS = 5000;
 
 const pageKind = ref<S07Kind | null>(null);
 const caseData = shallowRef<HelperCaseResponse | null>(null);
 const statusBox = ref<HTMLElement | null>(null);
+const asking = ref(false);
+const askError = ref('');
 
 const flow = createSubmitFlow({
   submit: (body) => api.submit(props.id, body),
@@ -34,7 +44,10 @@ const flow = createSubmitFlow({
 });
 
 const phase = flow.phase;
-const inFlight = computed(() => phase.value === 'submitting' || phase.value === 'checking');
+const inFlight = computed(
+  () => asking.value || phase.value === 'submitting' || phase.value === 'checking',
+);
+const confirmation = computed(() => caseData.value?.confirmation ?? 'none');
 
 const statusMessage = computed(() => {
   switch (phase.value) {
@@ -53,18 +66,6 @@ const statusMessage = computed(() => {
 
 const form = computed(() => caseData.value?.formData ?? null);
 const sourceNote = computed(() => (service.value ? locationSourceNote(service.value) : null));
-
-const location = computed(() =>
-  service.value && form.value ? optionLabel(service.value, 'locationPreference', form.value.locationPreference) : '',
-);
-const locationDetail = computed(() =>
-  service.value && form.value
-    ? optionFor(service.value, 'locationPreference', form.value.locationPreference)?.detail
-    : undefined,
-);
-const period = computed(() =>
-  service.value && form.value ? optionLabel(service.value, 'preferredPeriod', form.value.preferredPeriod) : '',
-);
 
 watch(statusMessage, (message) => {
   if (!message) return;
@@ -96,7 +97,62 @@ async function load(): Promise<void> {
   }
 }
 
-onMounted(load);
+/** While waiting on the applicant: pick up their answer, or notice the draft moved on elsewhere. */
+async function pollConfirmation(): Promise<void> {
+  const current = caseData.value;
+  if (!current || current.confirmation !== 'pending' || inFlight.value) return;
+  try {
+    const next = await api.getHelperCase(props.id);
+    if (caseData.value !== current) return; // Something newer replaced the case meanwhile.
+    serverClock.sync(next.serverNow);
+    if (next.state === 'submitted' || next.revision !== current.revision) {
+      await load();
+      return;
+    }
+    caseData.value = next;
+    if (next.confirmation === 'confirmed') announce('本人已確認，可以模擬送出');
+    else if (next.confirmation === 'returned') announce('本人退回了這份內容');
+  } catch (error) {
+    // A dropped connection is retried by the next poll. Stopped or expired shows S07.
+    const kind = isAccessLost(error) ? null : kindFromError(error);
+    if (kind && kind !== 'network') pageKind.value = kind;
+  }
+}
+
+let stopPolling: () => void = () => {};
+
+onMounted(() => {
+  void load();
+  stopPolling = startPolling(pollConfirmation, POLL_INTERVAL_MS);
+});
+
+onBeforeUnmount(() => stopPolling());
+
+async function askApplicant(): Promise<void> {
+  const data = caseData.value;
+  if (!data || inFlight.value) return;
+  asking.value = true;
+  askError.value = '';
+  try {
+    caseData.value = await api.requestConfirmation(props.id, data.revision);
+    announce('已送交本人確認');
+  } catch (error) {
+    if (isAccessLost(error)) return;
+    if (error instanceof ApiError && error.code === 'VALIDATION_FAILED' && error.fieldErrors) {
+      setPendingFieldErrors(props.id, error.fieldErrors);
+      await router.replace(caseRoute(props.id, 'edit'));
+    } else if (error instanceof ApiError && error.code === 'VERSION_CONFLICT') {
+      await load();
+    } else if (kindFromError(error) && kindFromError(error) !== 'network') {
+      pageKind.value = kindFromError(error);
+    } else {
+      askError.value = ASK_FAILED_MESSAGE;
+      announce(ASK_FAILED_MESSAGE);
+    }
+  } finally {
+    asking.value = false;
+  }
+}
 
 function handleOutcome(outcome: SubmitOutcome): void {
   switch (outcome.kind) {
@@ -140,30 +196,24 @@ function backToEdit(): void {
     <template v-else>
       <p class="helping-label">正在協助：{{ caseData.applicantLabel }}</p>
 
-      <section class="card" aria-labelledby="summary-preference">
-        <h2 id="summary-preference" class="card__title">偏好安排</h2>
-        <p class="muted">地點：{{ location }}</p>
-        <p v-if="locationDetail" class="muted">地址：{{ locationDetail }}</p>
-        <p class="muted">日期：{{ form.preferredDate ? formatCalendarDate(form.preferredDate) : '未選擇' }}</p>
-        <p class="muted">時段：{{ period }}</p>
-        <p class="muted">陪同：{{ form.companionRequired ? '需要' : '不需要' }}</p>
-        <p class="muted summary-notes">其他需求：{{ form.notes || '未填寫' }}</p>
-      </section>
-
-      <section class="card" aria-labelledby="summary-contact">
-        <h2 id="summary-contact" class="card__title">代辦聯絡</h2>
-        <p class="muted">稱呼：{{ form.helperName }}</p>
-        <p class="muted">電話：{{ form.helperPhone }}</p>
-      </section>
-
-      <section class="card" aria-labelledby="summary-data">
-        <h2 id="summary-data" class="card__title">資料與附件</h2>
-        <p class="muted">身分資料：已備妥，原值不顯示</p>
-        <p class="muted">練習附件：已上傳 {{ caseData.attachment ? 1 : 0 }} 份</p>
-      </section>
+      <CaseSummary :form="form" :attachment-ready="caseData.attachment !== null" id-prefix="summary" />
 
       <p v-if="sourceNote" class="source-note">{{ sourceNote }}</p>
       <p class="muted">這是模擬需求登記，<br />不代表健檢名額或正式預約成功。</p>
+
+      <!-- The applicant's say on this exact version (info.md F09). The poller announces changes. -->
+      <div v-if="confirmation === 'pending'" class="card card--tint">
+        <p class="card__title">已送交本人確認</p>
+        <p class="muted">請本人在自己的手機上確認這份內容。確認後這裡會自動更新，就能模擬送出。</p>
+      </div>
+      <div v-else-if="confirmation === 'confirmed'" class="card card--tint">
+        <p class="card__title"><span aria-hidden="true">✓ </span>本人已確認這份內容</p>
+        <p class="muted">如果再修改，需要請本人重新確認。</p>
+      </div>
+      <div v-else-if="confirmation === 'returned'" class="notice">
+        <p><span aria-hidden="true">ⓘ </span>本人退回了這份內容。請返回修改，或確認無誤後再次送交本人確認。</p>
+      </div>
+      <p v-if="askError" class="notice notice--error"><span aria-hidden="true">⚠ </span>{{ askError }}</p>
 
       <div v-if="statusMessage" ref="statusBox" class="notice" tabindex="-1">
         <p><span aria-hidden="true">ⓘ </span>{{ statusMessage }}</p>
@@ -177,7 +227,16 @@ function backToEdit(): void {
 
       <div class="actions">
         <button
-          v-if="phase === 'idle' || phase === 'retry' || phase === 'submitting'"
+          v-if="confirmation === 'none' || confirmation === 'returned'"
+          type="button"
+          class="btn btn--primary"
+          :aria-disabled="inFlight"
+          @click="askApplicant"
+        >
+          {{ asking ? '送交中' : confirmation === 'returned' ? '再次送交本人確認' : '送交本人確認' }}
+        </button>
+        <button
+          v-else-if="confirmation === 'confirmed' && (phase === 'idle' || phase === 'retry' || phase === 'submitting')"
           type="button"
           class="btn btn--primary"
           :aria-disabled="inFlight"

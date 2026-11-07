@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { PROTECTED_SEED } from '../../src/seed.js';
-import { createGrant, errorCode, openCase, redeem, saveDraft, submit, VALID_FORM } from '../support/flows.js';
+import { confirmRevision, createGrant, errorCode, openCase, redeem, saveDraft, submit, VALID_FORM } from '../support/flows.js';
 import type { Harness } from '../support/harness.js';
 
 const SECRET_FILENAME = '王大明-real-national-id-A123456789.pdf';
@@ -22,6 +22,8 @@ export function privacySuite(h: Harness): void {
       revision = upload.body.data.revision;
       await helper.upload(caseId, { expectedRevision: revision, filename: SECRET_FILENAME });
       await helper.patch(`/api/cases/${caseId}/draft`, { expectedRevision: 1, formData: VALID_FORM });
+      await confirmRevision(applicant, helper, caseId, revision);
+      await applicant.get('/api/my-assistance');
       const submitted = await submit(helper, caseId, revision, randomUUID());
       expect(submitted.status).toBe(200);
       await helper.get(`/api/cases/${caseId}`);

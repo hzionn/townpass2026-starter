@@ -10,12 +10,22 @@ const OK_KINDS: Partial<Record<string, ActivityKind>> = {
   'case.save_draft': 'draft_saved',
   'attachment.upload': 'attachment_uploaded',
   'attachment.delete': 'attachment_removed',
+  'case.request_confirmation': 'confirmation_requested',
+  'case.confirm': 'confirmed',
+  'case.return': 'returned',
   'case.submit': 'submitted',
   'grant.revoke': 'stopped',
 };
 
 /** Helper actions that, when refused because assistance ended, show as `blocked`. */
-const HELPER_ACTIONS = new Set(['grant.redeem', 'case.save_draft', 'attachment.upload', 'attachment.delete', 'case.submit']);
+const HELPER_ACTIONS = new Set([
+  'grant.redeem',
+  'case.save_draft',
+  'attachment.upload',
+  'attachment.delete',
+  'case.request_confirmation',
+  'case.submit',
+]);
 const ENDED_CODES = new Set(['ASSISTANCE_REVOKED', 'ACCESS_EXPIRED']);
 
 /** Happen once per grant: a re-scan, an idempotent re-submit or a repeated stop is not news. */

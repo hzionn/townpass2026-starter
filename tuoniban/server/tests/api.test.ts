@@ -2,6 +2,7 @@ import { describe } from 'vitest';
 import { ADAPTERS, useHarness } from './support/harness.js';
 import { activitySuite } from './suites/activity.js';
 import { attachmentSuite } from './suites/attachments.js';
+import { confirmationSuite } from './suites/confirmation.js';
 import { concurrencySuite } from './suites/concurrency.js';
 import { draftSuite } from './suites/draft.js';
 import { grantSuite } from './suites/grants.js';
@@ -29,4 +30,5 @@ describe.each(ADAPTERS)('API on %s', (adapter) => {
   concurrencySuite(h);
   httpSuite(h);
   activitySuite(h);
+  confirmationSuite(h);
 });

@@ -311,6 +311,17 @@ textarea {
   margin-bottom: 0.25rem;
 }
 
+/* S02 confirmation request: the applicant's decision, set apart from the status card. */
+.confirm-request {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
 /* S02 activity log: newest first, time on the left so the eye can scan it. */
 .activity {
   display: flex;
