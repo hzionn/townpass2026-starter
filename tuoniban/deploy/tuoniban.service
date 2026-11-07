@@ -1,0 +1,36 @@
+# 託你辦的 systemd 服務檔：開機自動啟動，當掉自動重啟。
+# setup-vm.sh 會把它複製到 /etc/systemd/system/tuoniban.service。
+#
+# 常用指令（在 VM 上）：
+#   sudo systemctl status tuoniban      看是否在跑
+#   sudo journalctl -u tuoniban -f      看即時日誌
+#   sudo systemctl restart tuoniban     改完 /etc/tuoniban.env 後重新啟動
+
+[Unit]
+Description=Tuoniban demo web app and API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 用沒有登入權限的專用帳號執行，不用 root。
+User=tuoniban
+Group=tuoniban
+# 程式會從這個資料夾找 dist/web（網站檔案）和 dist-server/main.mjs。
+WorkingDirectory=/opt/tuoniban/tuoniban
+Environment=NODE_ENV=production
+# PUBLIC_ORIGIN、SESSION_SECRET、資料庫位置等設定。只有 root 讀得到，systemd 啟動前替程式讀進來。
+EnvironmentFile=/etc/tuoniban.env
+ExecStart=/usr/bin/node dist-server/main.mjs
+Restart=always
+RestartSec=2
+
+# 基本防護：不能取得更高權限、看不到使用者家目錄、系統檔案唯讀。
+# 資料放在 /var/lib/tuoniban，不受影響。
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
