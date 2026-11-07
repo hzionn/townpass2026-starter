@@ -25,6 +25,7 @@
 - 部署：目前隨 App 封裝 `TownPass/assets/carepass/index.html`；可使用 `CAREPASS_URL` 切換實際 HTTPS 代管網址，尚未公開部署。
 - Demo 裝置：iPhone 17 Pro／iOS 26.5 模擬器已通過完整服務流程及關閉重開保存測試；實機電話、App 重啟與 Android 平台另驗收。
 - 入口：服務清單「防疫醫療」及服務頁「熱門」，`local://carepass` → `/carepass`。
+- UI：對齊 TownPass 的 TPColors／TPTextStyles／TPButton／TPCard，網頁 tokens 位於 `carepass/src/tokens.css`。App 內沿用原生標頭；新版 HTML 需重新 build 並安裝至手機。
 - 分支：`feature/caregiver`；透過 Commit、Push、PR 供隊友 Review。
 
 ## 分工

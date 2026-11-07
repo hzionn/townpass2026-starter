@@ -73,6 +73,12 @@ flutter run --dart-define=CAREPASS_URL=https://你的實際服務網址/
 
 名稱含停業或暫停派案註記的單位另列服務狀態待確認，包含已過期的註記；不自行推斷已恢復服務。原始行動電話有 22 筆疑似缺少前導零，保留原文並列入異常報告，格式未確認前不提供直接撥號。
 
+## UI 設計來源
+
+網頁的 `src/tokens.css` 對照 `TownPass/lib/util/tp_colors.dart`、`tp_text_styles.dart`、`tp_button.dart` 與 `tp_card.dart`：使用 primary500 `#5AB4C5`、灰白背景、白色卡片、10px 按鈕圓角與 3px 卡片圓角。表單、選取狀態、提示、單位清單及底部導覽共用這些 tokens。
+
+主要按鈕使用 primary950 深色標籤，維持正常字級的文字對比；文字連結與選取文字使用 primary700。手機版收斂裝飾插圖，保留清楚的主要行動與至少 48px 操作高度。App 內偵測既有 bridge 後隱藏網頁標頭，由原生 TownPass AppBar 提供標題；一般瀏覽器保留網頁標頭。修改樣式後仍需 `npm run build`，重新建置／安裝 App 才會更新手機內的封裝網頁。
+
 ## 本機保存與驗證限制
 
 清單包含選項答案、聯絡摘要、選用的公開單位資訊及手動待辦，使用 `carepass.plan.v1` 儲存於 localStorage。沒有姓名、完整住址、病歷或帳號同步；可在「我的清單」清除。寫入失敗或舊資料無法讀取時有明確提示，可先手動複製摘要。

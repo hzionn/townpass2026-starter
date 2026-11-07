@@ -35,6 +35,12 @@ function App() {
   const [modal, setModal] = useState<{ title: string; description: string; confirm: string; action: () => void } | null>(null);
   const mainRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const syncHeader = () => { document.documentElement.dataset.embedded = String(!!window.flutterObject); };
+    syncHeader();
+    window.addEventListener('flutterInAppWebViewPlatformReady', syncHeader);
+    return () => window.removeEventListener('flutterInAppWebViewPlatformReady', syncHeader);
+  }, []);
   useEffect(() => { const onHash = () => setRoute(getRoute()); window.addEventListener('hashchange', onHash); return () => window.removeEventListener('hashchange', onHash); }, []);
   useEffect(() => { window.scrollTo(0, 0); mainRef.current?.focus({ preventScroll: true }); }, [route]);
   useEffect(() => { if (modal) dialogRef.current?.showModal(); }, [modal]);

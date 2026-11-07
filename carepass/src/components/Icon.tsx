@@ -17,15 +17,15 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
 
 export function CareIllustration() {
   return <svg className="care-illustration" viewBox="0 0 260 230" fill="none" aria-hidden="true">
-    <circle cx="130" cy="114" r="94" fill="#dceee9" />
-    <path d="M54 171c-10-30-25-43-28-64 25 9 39 32 36 56M204 173c1-23 23-41 35-44-2 22-11 41-35 44" fill="#9bbfb2" />
-    <path d="M66 74 130 25l64 49v104H66V74Z" fill="#fffdf8" stroke="#356c77" strokeWidth="3" strokeLinejoin="round" />
-    <path d="m51 84 79-62 79 62" stroke="#356c77" strokeWidth="6" strokeLinecap="round" />
-    <path d="M151 94c-8-8-17-6-21 0-5-6-14-8-22 0-9 10-1 21 22 37 23-16 30-27 21-37Z" fill="#d3a17d" />
-    <path d="M26 161c19-12 32-10 49 0l27 13h48c10 0 13 13 2 17l-31 7-32-7" fill="#f0d5b9" stroke="#356c77" strokeWidth="3" strokeLinecap="round" />
-    <path d="m238 158-32-4-55 20h-49c-12 0-12 14 0 17l35 10 39-8 62-17" fill="#f8e6d1" stroke="#356c77" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="m19 152 21-2 14 51-22 5M240 150l-18-3-14 51 24 8" fill="#74a59a" stroke="#356c77" strokeWidth="3" />
-    <path d="m210 41 3-8 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" fill="#d9b56d" />
-    <circle cx="42" cy="48" r="5" fill="#d9b56d" />
+    <circle cx="130" cy="114" r="94" fill="var(--tp-primary-100)" />
+    <path d="M54 171c-10-30-25-43-28-64 25 9 39 32 36 56M204 173c1-23 23-41 35-44-2 22-11 41-35 44" fill="var(--tp-primary-300)" />
+    <path d="M66 74 130 25l64 49v104H66V74Z" fill="var(--tp-white)" stroke="var(--tp-primary-700)" strokeWidth="3" strokeLinejoin="round" />
+    <path d="m51 84 79-62 79 62" stroke="var(--tp-primary-700)" strokeWidth="6" strokeLinecap="round" />
+    <path d="M151 94c-8-8-17-6-21 0-5-6-14-8-22 0-9 10-1 21 22 37 23-16 30-27 21-37Z" fill="var(--tp-secondary-500)" />
+    <path d="M26 161c19-12 32-10 49 0l27 13h48c10 0 13 13 2 17l-31 7-32-7" fill="var(--tp-primary-200)" stroke="var(--tp-primary-700)" strokeWidth="3" strokeLinecap="round" />
+    <path d="m238 158-32-4-55 20h-49c-12 0-12 14 0 17l35 10 39-8 62-17" fill="var(--tp-primary-100)" stroke="var(--tp-primary-700)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="m19 152 21-2 14 51-22 5M240 150l-18-3-14 51 24 8" fill="var(--tp-primary-500)" stroke="var(--tp-primary-700)" strokeWidth="3" />
+    <path d="m210 41 3-8 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" fill="var(--tp-secondary-500)" />
+    <circle cx="42" cy="48" r="5" fill="var(--tp-secondary-500)" />
   </svg>;
 }

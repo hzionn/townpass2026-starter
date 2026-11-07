@@ -1,0 +1,38 @@
+/* Mirrored from TownPass TPColors, TPTextStyles, TPButton and TPCard. */
+:root {
+  --tp-primary-50: #edf8fa;
+  --tp-primary-100: #dbf1f5;
+  --tp-primary-200: #b4e2ea;
+  --tp-primary-300: #93d4df;
+  --tp-primary-500: #5ab4c5;
+  --tp-primary-600: #468d9b;
+  --tp-primary-700: #356c77;
+  --tp-primary-800: #22474e;
+  --tp-primary-950: #081315;
+  --tp-secondary-50: #fdf8ed;
+  --tp-secondary-100: #fcf2df;
+  --tp-secondary-500: #f5ba4b;
+  --tp-secondary-800: #74521b;
+  --tp-gray-50: #f1f3f4;
+  --tp-gray-100: #e3e7e9;
+  --tp-gray-200: #cad1d5;
+  --tp-gray-400: #91a0a8;
+  --tp-gray-500: #738995;
+  --tp-gray-600: #5e6d76;
+  --tp-gray-700: #475259;
+  --tp-gray-800: #30383d;
+  --tp-gray-950: #0b0d0e;
+  --tp-red-50: #faeeee;
+  --tp-red-700: #912522;
+  --tp-white: #fff;
+  --tp-font: 'Roboto', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --tp-h1: 2.25rem;
+  --tp-h2: 1.5rem;
+  --tp-title: 1.125rem;
+  --tp-h3: 1rem;
+  --tp-body: .875rem;
+  --tp-caption: .75rem;
+  --tp-radius-button: 10px;
+  --tp-radius-card: 3px;
+  --tp-card-shadow: 0 4px 12px #0000000a;
+}
