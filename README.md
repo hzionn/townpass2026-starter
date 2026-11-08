@@ -75,7 +75,7 @@ fvm flutter run
 
 需要 Flutter 3.47.6（`.fvmrc` 指定的版本）；Android 需要 Java 17，iOS 需要 Mac 和 Xcode。App 打開後到「服務 › 更多」找到「託你辦」，加入我的服務。
 
-想把服務指到自己部署的網址，可以改用 [`tuoniban/townpass/`](tuoniban/townpass/) 的 patch，它和 fork 的改動相同，只是網址是佔位字，做法見那裡的 README。
+想把服務指到自己部署的網址，改 `my_service_model.dart` 裡 `MyServiceItemId.tuoNiBan` 的 `destinationUrl`（保留結尾的 `/`），重新 `flutter run` 即可。
 
 ## 在自己電腦上跑
 
@@ -107,7 +107,6 @@ npm run typecheck    # 型別檢查
 | `tuoniban/e2e/` | 端對端測試（Playwright，模擬 Android 和 iPhone） |
 | `tuoniban/scripts/` | 授權清單、開放資料匯入、合成附件產生 |
 | `tuoniban/deploy/` | 部署到 GCP VM 的 script 和設定 |
-| `tuoniban/townpass/` | 城市通 App 修改的 patch |
 | `tuoniban/docs/` | 實作取捨 |
 | `CLAUDE.md`、`.claude/` | 開發時給 AI 程式助理讀的專案說明和比賽規則整理 |
 | `LICENSE` | AGPL-3.0 |

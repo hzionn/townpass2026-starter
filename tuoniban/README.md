@@ -36,7 +36,6 @@
 | `e2e/` | 端對端測試（Playwright） |
 | `scripts/` | 授權清單、開放資料匯入、合成附件產生 |
 | `deploy/` | 部署到 GCP VM 用的檔案 |
-| `townpass/` | 把服務掛進城市通 App 的 patch 和說明 |
 | `docs/IMPLEMENTATION.md` | 實作決定 |
 
 資料預設存在 SQLite 資料庫檔案和一個私有附件資料夾。設了 `DATABASE_URL` 會改用 Postgres，這是選用功能，我們的部署方式用不到。
@@ -123,7 +122,7 @@ npm run build && npx playwright test      # 端對端測試，也可以用 npm r
 
 | 日期 | 裝置 | 測了什麼 | 結果 | 問題 |
 |---|---|---|---|---|
-| | | | | |
+| 2026-11-08 | iPhone 和 Android 各一支，互換本人與代辦 | 2 分鐘展示流程 | 通過 | |
 
 ## 展示前重設資料
 
@@ -249,7 +248,7 @@ sudo bash /opt/tuoniban/tuoniban/deploy/setup-vm.sh
 
 ### 7. 填進城市通
 
-城市通 patch 的 `destinationUrl` 填 `https://34-80-1-2.sslip.io/`（結尾要有 `/`），做法見下面「掛進城市通 App」。
+把城市通 fork 裡 `my_service_model.dart` 的 `destinationUrl` 填成 `https://34-80-1-2.sslip.io/`（結尾要有 `/`），見下面「掛進城市通 App」。
 
 ### 之後的維護
 
@@ -299,11 +298,7 @@ gcloud compute instances stop tuoniban --zone=asia-east1-b
 
 ## 掛進城市通 App
 
-詳細步驟在 [`townpass/README.md`](townpass/README.md)。簡單說：
-
-1. 在隊伍的 App fork（`hzionn/TownPass`）套用 [`townpass/tuoniban-service.patch`](townpass/tuoniban-service.patch)，它會在「服務 › 更多 › 市政服務」加一個「託你辦」。
-2. 把 patch 裡的 `destinationUrl` 換成部署好的網址，也就是 `PUBLIC_ORIGIN` 加上結尾的 `/`。
-3. `flutter run`，在 App 裡把「託你辦」加進我的服務。
+App 的修改已經在隊伍 fork `hzionn/TownPass` 的 `main`，只改 `lib/page/city_service/model/my_service_model.dart` 一個檔案：在「服務 › 更多 › 市政服務」加一個「託你辦」，`destinationUrl` 指向部署好的網址（`PUBLIC_ORIGIN` 加上結尾的 `/`）。建置步驟見 repo 根目錄的 README；要換網址就改那一行再重新 `flutter run`，然後在 App 裡把「託你辦」加進我的服務。
 
 在城市通裡，S03 的「掃描協助碼」會呼叫 App 的 `qr_code_scan` 掃碼功能；在一般瀏覽器裡改用相機加 jsQR 掃碼，相機不能用時可以貼連結。App 上方的標題列顯示的是網頁標題，所以每頁都有設定標題。
 
