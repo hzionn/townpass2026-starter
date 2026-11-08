@@ -1,0 +1,685 @@
+/* Design tokens: spec §5.1 and the S01–S07 wireframes. Contrast is checked in the comments. */
+:root {
+  --color-bg: #f3f7fa;
+  --color-surface: #ffffff;
+  --color-text: #18364a; /* 11.9:1 on --color-bg */
+  --color-muted: #4d6372; /* 5.7:1 on --color-bg, 5.0:1 on --color-tint. The wireframe's grey is below AA. */
+  --color-border: #bccad3; /* Card outlines only: cards are not controls. */
+  --color-control-border: #647b8a; /* At least 3:1 against white and the page, as WCAG 1.4.11 asks of controls. */
+  --color-primary: #006d77; /* 6.0:1 with white text */
+  --color-primary-hover: #005a63;
+  --color-chip: #e3f1f1;
+  --color-tint: #e8f0f2;
+  --color-success-tint: #d8ecec;
+  --color-warning-tint: #f5e9d8;
+  --color-error: #a3211a; /* 6.8:1 on --color-bg. Never used without a text or icon signal. */
+  --color-error-tint: #fbeeed;
+
+  --touch-target: max(48px, 3rem);
+  --radius-control: 0.75rem;
+  --radius-card: 0.875rem;
+  --page-padding: clamp(0.75rem, 6vw, 1.5rem);
+
+  font-family: Roboto, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Focus lands on the h1 from code, on page changes. It is not something to press, so no ring. */
+h1:focus,
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- App shell ---------------------------------------------------------------------------- */
+
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.5rem var(--page-padding);
+}
+
+.app-header__title {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+}
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: var(--color-primary);
+}
+
+.app-header__home {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: 1.125rem;
+  color: var(--color-primary);
+}
+
+/* The chip keeps its place on the right even when the home link is hidden. */
+.app-header--in-app .chip {
+  margin-left: auto;
+}
+
+.chip {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.625rem;
+  background: var(--color-chip);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem var(--page-padding) calc(2rem + env(safe-area-inset-bottom));
+}
+
+/* ---- Text --------------------------------------------------------------------------------- */
+
+.lead {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.helping-label {
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.strong-note {
+  font-weight: 700;
+}
+
+.source-note {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.status-line {
+  font-weight: 700;
+}
+
+.save-status {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.summary-notes {
+  white-space: pre-wrap;
+}
+
+.home-note {
+  margin-top: 0.25rem;
+}
+
+/* ---- Buttons ------------------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: max(3.5rem, 48px);
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn--secondary {
+  background: var(--color-surface);
+  border-color: var(--color-control-border);
+  color: var(--color-text);
+}
+
+.btn--secondary:hover {
+  background: var(--color-tint);
+}
+
+.btn--small {
+  min-height: var(--touch-target);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.btn[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Text-style buttons still need a full-size touch target (spec §5.1). */
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.link-button--large {
+  align-self: flex-start;
+  font-size: 1.125rem;
+}
+
+.link-button[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.5rem;
+  color: var(--color-primary);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ---- Cards and status --------------------------------------------------------------------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.card--tint {
+  background: var(--color-tint);
+}
+
+.card__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+/* S02 confirmation request: the applicant's decision, set apart from the status card. */
+.confirm-request {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+/* S02 activity log: newest first, time on the left so the eye can scan it. */
+.activity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.activity__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity__item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.activity__item:first-child {
+  border-top: none;
+}
+
+.activity__time {
+  flex-shrink: 0;
+  min-width: 3.25rem;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.activity__item--warning {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.status-circle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 5rem;
+  height: 5rem;
+  margin: 0.25rem auto;
+  border-radius: 50%;
+  color: var(--color-primary);
+}
+
+.status-circle--success {
+  background: var(--color-success-tint);
+}
+
+.status-circle--warning {
+  background: var(--color-warning-tint);
+  color: var(--color-text);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.state-page__statement {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+.notice--error {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+  color: var(--color-error);
+}
+
+.notice--error .btn {
+  color: var(--color-text);
+}
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid var(--color-error);
+  border-radius: var(--radius-card);
+  background: var(--color-warning-tint);
+}
+
+.banner__title {
+  font-weight: 700;
+}
+
+.connection-note {
+  margin-top: 0.25rem;
+}
+
+/* ---- S02: QR code ------------------------------------------------------------------------- */
+
+.qr-card {
+  align-self: center;
+  width: 100%;
+  /* The image needs at least 240 CSS px (spec S02) inside the padding and border. */
+  max-width: calc(240px + 2 * 0.625rem + 2px);
+  min-height: 10rem;
+  padding: 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: #ffffff;
+}
+
+.qr-card__image {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* ---- S03: camera -------------------------------------------------------------------------- */
+
+.camera-area {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 100%;
+  max-width: 18.125rem;
+  aspect-ratio: 290 / 205;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: #e4eaee;
+}
+
+.camera-area__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-area__label {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.paste-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ---- Forms -------------------------------------------------------------------------------- */
+
+.case-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-section + .form-section {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.form-section__title {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--color-primary);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field--group {
+  display: block;
+}
+
+.field__label {
+  display: block;
+  padding: 0;
+  font-weight: 700;
+}
+
+.field__hint,
+.field__detail {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.field--group .field__hint,
+.field--group .field__error {
+  margin-top: 0.375rem;
+}
+
+.field__detail {
+  color: var(--color-text);
+}
+
+.field__error {
+  color: var(--color-error);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.control {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+.control::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+.control[aria-invalid='true'],
+.choice-box--invalid {
+  border: 2px solid var(--color-error);
+}
+
+/* iOS gives date inputs a wide intrinsic size that would overflow narrow screens. */
+input[type='date'].control {
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+}
+
+.control--select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%2318364a' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+}
+
+.control--textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.choice-box {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+.choice {
+  display: flex;
+  flex: 1 1 5rem;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  padding: 0 0.875rem;
+  cursor: pointer;
+}
+
+.choice input {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+/* The real input covers the whole label, so a tap or a click lands directly on it. */
+.file-picker {
+  position: relative;
+  overflow: hidden;
+}
+
+.file-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-picker:focus-within {
+  outline: 3px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+.file-picker--disabled {
+  opacity: 0.6;
+}
+
+.file-picker--disabled input {
+  cursor: not-allowed;
+}
+
+.attachment-status {
+  font-weight: 700;
+}
+
+/* ---- Dialog ------------------------------------------------------------------------------- */
+
+.confirm-dialog {
+  width: min(calc(100vw - 1.5rem), 28rem);
+  max-height: calc(100dvh - 1.5rem);
+  padding: 1.25rem;
+  overflow: auto;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.confirm-dialog::backdrop {
+  background: rgb(24 54 74 / 55%);
+}
+
+.confirm-dialog__message {
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

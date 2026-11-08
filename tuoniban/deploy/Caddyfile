@@ -1,0 +1,16 @@
+# 託你辦的 Caddy 設定範本。Caddy 會自動向 Let's Encrypt 申請 HTTPS 憑證並自動更新。
+#
+# setup-vm.sh 會把下面大括號前的佔位字換成你的主機名稱，再寫到 /etc/caddy/Caddyfile。
+# 沒有網域時，主機名稱用 VM 外部 IP 把點換成橫線再加 .sslip.io，例如 34-80-1-2.sslip.io。
+# 這個主機名稱前面加 https:// 就是 /etc/tuoniban.env 的 PUBLIC_ORIGIN，兩邊要一致。
+#
+# 手動修改後：
+#   sudo caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+#   sudo systemctl reload caddy
+
+__HOST__ {
+	# 壓縮網頁檔案，場地網路慢時手機比較快打開。
+	encode zstd gzip
+	# 轉給本機的託你辦（tuoniban.service），port 要和 PORT 設定一致，預設 8787。
+	reverse_proxy 127.0.0.1:8787
+}

@@ -1,0 +1,16 @@
+.DS_Store
+*.log
+*.zip
+**/node_modules/
+tuoniban/dist/
+tuoniban/dist-server/
+tuoniban/.data/
+tuoniban/.vercel/
+tuoniban/.env*
+!tuoniban/.env.example
+tuoniban/test-results/
+tuoniban/playwright-report/
+tuoniban/coverage/
+
+# 原始規格資料夾（只留在本機）
+託你辦_授權協作申辦與預約平台/

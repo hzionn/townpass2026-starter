@@ -2,12 +2,16 @@
 
 2026 臺北秋季程式設計節「城市通微服務大黑客松」的隊伍起始 repo。
 
-題目 2026-11-07 才公布，所以這裡先不放程式碼，也不綁任何語言或套件，等題目和技術決定後再加進來。現在只有讓全隊和 AI agent 快速進入狀況的資料。
+我們的作品是 **[託你辦｜授權協作申辦與預約平台](tuoniban/README.md)**：不方便自己上網申辦的人產生 QR Code，信任的家人或照顧者用自己的手機掃碼接手填表、上傳附件並模擬送出；本人看得到進度，也能隨時停止。
+
+怎麼跑、怎麼測、怎麼部署、資料來源和套件清單，都在 [`tuoniban/README.md`](tuoniban/README.md)。
 
 ## 裡面有什麼
 
 | 路徑 | 內容 |
 |---|---|
+| `tuoniban/` | 作品程式碼：前端 Vue 3 + TypeScript、後端 Node.js + Express + TypeScript、部署檔、城市通 patch |
+| `LICENSE` | AGPL-3.0 |
 | `CLAUDE.md` | 給 AI agent 的指示：比賽硬規則、協作方式、共用資料索引 |
 | `.claude/rules/hackathon.md` | 主題方向、時程、規則、評分、繳交項目、攜帶清單 |
 | `.claude/rules/townpass-integration.md` | 作品怎麼掛進城市通 App、網頁怎麼呼叫 App 功能、怎麼部署 |
@@ -55,10 +59,11 @@ gh pr create --fill
 
 ## 繳交前要補上
 
-以下是比賽要求或手冊建議的項目，這裡都還沒有，完賽前要補齊（細節見 `.claude/rules/hackathon.md`）：
+比賽要求或手冊建議的項目（細節見 `.claude/rules/hackathon.md`）：
 
-- `LICENSE`：AGPL-3.0，加上主辦單位指定的聲明
-- 讓別人能照著建置的執行說明（可以直接寫在這份 README）
-- 資料來源清單和第三方套件清單（可以從 `.claude/rules/decisions.md` 整理）
-- 作品有用裝置端 AI 時的模型揭露
-- 把 repo 設為公開，並保持公開至少一年
+- [x] `LICENSE`：AGPL-3.0 全文
+- [ ] `LICENSE` 加上主辦單位指定的聲明（文字在工作坊手冊，向組長拿）
+- [x] 讓別人能照著建置的說明：[`tuoniban/README.md`](tuoniban/README.md)
+- [x] 資料來源清單、第三方套件清單、AI 使用揭露：都在 `tuoniban/README.md`
+- [ ] 把 repo 設為公開，並保持公開至少一年
+- [ ] 城市通 App 的修改（`tuoniban/townpass/tuoniban-service.patch`）套用到 `hzionn/TownPass` 並換成部署網址
