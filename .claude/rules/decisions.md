@@ -22,7 +22,7 @@
 - 前端：Vue 3 + Vite + TypeScript
 - 後端（沒有就寫無）：Node.js（22.13 以上）+ Express 5 + TypeScript，SQLite（Node 內建 `node:sqlite`）加私有附件資料夾；設 `DATABASE_URL` 可改用 Postgres（選用，部署用不到）
 - 部署：一台 GCP Compute Engine VM（e2-small、asia-east1、Debian 12），SQLite 存在 VM 磁碟，Caddy 自動 HTTPS；沒有網域時用 `<IP 橫線>.sslip.io`。檔案在 `tuoniban/deploy/`。不用 Vercel 或 Cloud Run（沒有持久磁碟）
-- Demo 裝置：兩支手機，至少一支裝城市通 App（套用 `tuoniban/townpass/tuoniban-service.patch`）；只有一支時讓它當代辦，才能展示 App 掃碼
+- Demo 裝置：兩支手機，至少一支裝城市通 App（隊伍 fork `hzionn/TownPass` 的 `main`，服務入口已指向部署網址）；只有一支時讓它當代辦，才能展示 App 掃碼
 
 ## 分工
 
